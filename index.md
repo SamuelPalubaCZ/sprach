@@ -15,10 +15,10 @@ nav_order: 1
         </p>
         
         <div class="hero-actions">
-            <a href="{{ '/transmitter.html' | relative_url }}" class="btn btn-primary btn-large">
+            <a href="/transmitter.html" class="btn btn-primary btn-large">
                 Start Transmitting
             </a>
-            <a href="{{ '/training.html' | relative_url }}" class="btn btn-large">
+            <a href="/training.html" class="btn btn-large">
                 Begin Training
             </a>
         </div>
