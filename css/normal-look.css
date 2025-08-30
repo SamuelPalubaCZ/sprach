@@ -82,6 +82,35 @@ input[type="text"] {
     padding: 15px;
 }
 
+.broadcast-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1em;
+    padding: 1em;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.option-group {
+    display: flex;
+    align-items: center;
+}
+
+.option-group label {
+    margin-right: 0.5em;
+}
+
+.option-group input[type="number"] {
+    width: 60px;
+    margin-bottom: 0;
+}
+
+.option-group input[type="checkbox"] {
+    margin-right: 0.5em;
+}
+
+
 .audio-controls {
     display: flex;
     justify-content: space-around;

@@ -81,59 +81,88 @@ window.onload = function () {
 }
 
 async function generateAudio() {
+    // Read all controls
     const call = document.getElementById("call").value;
     const body = document.getElementById("body").value;
-    const message = call + " " + body;
-
     const pitch = parseFloat(document.getElementById('pitch-control').value);
     const speed = parseFloat(document.getElementById('speed-control').value);
+    const callsignReps = parseInt(document.getElementById('callsign-reps').value, 10);
+    const playAchtung = document.getElementById('achtung-signal').checked;
+    const autoPause = document.getElementById('auto-pause').checked;
+
     const shortPause = 0.1 / speed;
     const longPause = 0.5 / speed;
 
     const soundClips = [];
-    let totalDuration = 0;
 
-    for (const char of message) {
+    const getSound = (char) => {
         let soundIndex = -1;
-        let isPause = false;
-        let pauseDuration = 0;
+        if (!isNaN(char)) soundIndex = parseInt(char, 10);
+        else if (char === '*' || char === '#') soundIndex = 10; // Achtung
+        else if (char === '/') soundIndex = 11; // Trennung
+        else if (char === '+') soundIndex = 12; // Ende
 
-        if (char === ' ') {
-            isPause = true;
-            pauseDuration = shortPause;
-        } else if (char === '_') {
-            isPause = true;
-            pauseDuration = longPause;
-        } else if (!isNaN(char)) {
-            soundIndex = parseInt(char, 10);
-        } else if (char === '*') {
-            soundIndex = 10;
-        } else if (char === '/') {
-            soundIndex = 11;
-        } else if (char === '+') {
-            soundIndex = 12;
-        }
-
-        if (isPause) {
-            totalDuration += pauseDuration;
-            soundClips.push({ isPause: true, duration: pauseDuration });
-        } else if (soundIndex !== -1 && window.sounds[soundIndex]) {
+        if (soundIndex !== -1 && window.sounds[soundIndex]) {
             const buffer = window.sounds[soundIndex];
             const duration = buffer.duration / pitch;
-            totalDuration += duration;
-            soundClips.push({ isPause: false, buffer, duration });
+            return { isPause: false, buffer, duration };
+        }
+        return null;
+    };
+
+    // 1. Attention Signal
+    if (playAchtung) {
+        soundClips.push(getSound('*'));
+        soundClips.push({ isPause: true, duration: longPause });
+    }
+
+    // 2. Callsign
+    for (let i = 0; i < callsignReps; i++) {
+        for (const char of call) {
+            const sound = getSound(char);
+            if (sound) {
+                soundClips.push(sound);
+                if (autoPause) soundClips.push({ isPause: true, duration: shortPause });
+            }
+        }
+        soundClips.push({ isPause: true, duration: longPause });
+    }
+
+    // 3. Separator
+    soundClips.push(getSound('/'));
+    soundClips.push({ isPause: true, duration: longPause });
+
+    // 4. Message Body
+    for (const char of body) {
+        if (char === ' ') {
+            soundClips.push({ isPause: true, duration: shortPause });
+            continue;
+        }
+        if (char === '_') {
+            soundClips.push({ isPause: true, duration: longPause });
+            continue;
+        }
+        const sound = getSound(char);
+        if (sound) {
+            soundClips.push(sound);
+            if (autoPause) soundClips.push({ isPause: true, duration: shortPause });
         }
     }
 
-    if (soundClips.length === 0) {
+    // 5. End Signal
+    soundClips.push(getSound('+'));
+
+    const validClips = soundClips.filter(c => c !== null);
+    if (validClips.length === 0) {
         alert("No valid characters to generate audio.");
         return;
     }
 
-    const offlineContext = new OfflineAudioContext(1, context.sampleRate * totalDuration, context.sampleRate);
+    const totalDuration = validClips.reduce((sum, clip) => sum + clip.duration, 0);
+    const offlineContext = new OfflineAudioContext(1, Math.ceil(context.sampleRate * totalDuration), context.sampleRate);
     let offset = 0;
 
-    for (const clip of soundClips) {
+    for (const clip of validClips) {
         if (clip.isPause) {
             offset += clip.duration;
         } else {

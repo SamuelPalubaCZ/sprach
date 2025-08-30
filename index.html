@@ -26,7 +26,20 @@
 
                         <label for="body">Message Body (Numbers only)</label>
                         <textarea rows="6" name="body" id="body">846 846 20 20 83167 83167 14528 14528 30778 30778 13436 13436 50234 50234 67256 67256 15654 15654 27414 27414 15837 15837 75251 75251 51820 51820 37982 37982 64162 64162 18385 18385 90381 90381 77942 77942 12692 12692 22897 22897 69231 69231 14881 14881 846 846 20 20 00000</textarea>
-                        <p style="font-size: 0.9em; color: #666;">Use a space for a short pause, and `_` for a long pause.</p>
+                        <p style="font-size: 0.9em; color: #666;">Use a space for a short pause, and `_` for a long pause. Special characters: `* / + #`.</p>
+
+                        <div class="broadcast-options">
+                            <div class="option-group">
+                                <label for="callsign-reps">Callsign Reps:</label>
+                                <input type="number" id="callsign-reps" value="2" min="1" max="10">
+                            </div>
+                            <div class="option-group">
+                                <label for="achtung-signal"><input type="checkbox" id="achtung-signal" checked> Play 'Achtung'</label>
+                            </div>
+                            <div class="option-group">
+                                <label for="auto-pause"><input type="checkbox" id="auto-pause" checked> Auto-pause</label>
+                            </div>
+                        </div>
 
                         <div class="audio-controls">
                             <div class="control-group">
