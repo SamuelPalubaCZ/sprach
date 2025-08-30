@@ -19,32 +19,59 @@ nav_order: 2
             <textarea rows="6" name="body" id="body">846 846 20 20 83167 83167 14528 14528 30778 30778 13436 13436 50234 50234 67256 67256 15654 15654 27414 27414 15837 15837 75251 75251 51820 51820 37982 37982 64162 64162 18385 18385 90381 90381 77942 77942 12692 12692 22897 22897 69231 69231 14881 14881 846 846 20 20 00000</textarea>
             <p style="font-size: 0.9em; color: #666;">Use a space for a short pause, and `_` for a long pause. Special characters: `* / + #`.</p>
 
-            <div class="broadcast-options">
-                <div class="option-group">
-                    <label for="callsign-reps">Callsign Reps:</label>
-                    <input type="number" id="callsign-reps" value="2" min="1" max="10">
+            <div class="pure-control-group" style="margin-top: 1em;">
+                <label style="font-weight: bold; margin-bottom: 0.5em; display: block;">Transmission Mode:</label>
+                <label for="mode-voice" class="pure-radio" style="display: inline-block; margin-right: 1em;">
+                    <input id="mode-voice" type="radio" name="mode" value="voice" checked>
+                    Voice
+                </label>
+                <label for="mode-morse" class="pure-radio" style="display: inline-block;">
+                    <input id="mode-morse" type="radio" name="mode" value="morse">
+                    Morse
+                </label>
+            </div>
+
+            <div id="voice-settings" style="margin-top: 1em;">
+                <h3 class="content-subhead" style="font-size: 1em; margin-top: 0; margin-bottom: 0.5em; border-bottom: 1px solid #eee; padding-bottom: 0.5em;">Voice Settings</h3>
+                <div class="broadcast-options">
+                    <div class="option-group">
+                        <label for="callsign-reps">Callsign Reps:</label>
+                        <input type="number" id="callsign-reps" value="2" min="1" max="10">
+                    </div>
+                    <div class="option-group">
+                        <label for="achtung-signal"><input type="checkbox" id="achtung-signal" checked> Play 'Achtung'</label>
+                    </div>
+                    <div class="option-group">
+                        <label for="auto-pause"><input type="checkbox" id="auto-pause" checked> Auto-pause</label>
+                        <input type="number" id="auto-pause-duration" value="100" min="0" step="50" style="width: 70px; margin-left: 5px;"> ms
+                    </div>
                 </div>
-                <div class="option-group">
-                    <label for="achtung-signal"><input type="checkbox" id="achtung-signal" checked> Play 'Achtung'</label>
-                </div>
-                <div class="option-group">
-                    <label for="auto-pause"><input type="checkbox" id="auto-pause" checked> Auto-pause</label>
-                    <input type="number" id="auto-pause-duration" value="100" min="0" step="50" style="width: 70px; margin-left: 5px;"> ms
+
+                <div class="audio-controls">
+                    <div class="control-group">
+                        <label for="speed-control">Speed (0.5-2.0):</label>
+                        <input type="number" id="speed-control" min="0.5" max="2.0" value="1.0" step="0.1">
+                    </div>
+                    <div class="control-group">
+                        <label for="pitch-control">Pitch (0.5-2.0):</label>
+                        <input type="number" id="pitch-control" min="0.5" max="2.0" value="1.0" step="0.1">
+                    </div>
                 </div>
             </div>
 
-            <div class="audio-controls">
+            <div id="morse-settings" style="display: none; margin-top: 1em;">
+                <h3 class="content-subhead" style="font-size: 1em; margin-top: 0; margin-bottom: 0.5em; border-bottom: 1px solid #eee; padding-bottom: 0.5em;">Morse Settings</h3>
                 <div class="control-group">
-                    <label for="speed-control">Speed (0.5-2.0):</label>
-                    <input type="number" id="speed-control" min="0.5" max="2.0" value="1.0" step="0.1">
+                    <label for="morse-wpm">WPM (Words Per Minute):</label>
+                    <input type="number" id="morse-wpm" min="5" max="100" value="20" step="1">
                 </div>
                 <div class="control-group">
-                    <label for="pitch-control">Pitch (0.5-2.0):</label>
-                    <input type="number" id="pitch-control" min="0.5" max="2.0" value="1.0" step="0.1">
+                    <label for="morse-frequency">Tone Frequency (Hz):</label>
+                    <input type="number" id="morse-frequency" min="300" max="2000" value="800" step="50">
                 </div>
             </div>
 
-            <button type="submit" id="generate-button" class="button-xlarge pure-button">Generate Audio File</button>
+            <button type="submit" id="generate-button" class="button-xlarge pure-button" style="margin-top: 1.5em;">Generate Audio File</button>
         </fieldset>
     </form>
     <div id="audio-output" style="display: none; margin-top: 1em;">

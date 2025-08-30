@@ -53,6 +53,93 @@ function playSound(key, time) {
 function finishedLoading(returnedBuffer) {
 	window.sounds = returnedBuffer;
 }
+const MORSE_CODE = {
+    '0': '-----', '1': '.----', '2': '..---', '3': '...--', '4': '....-',
+    '5': '.....', '6': '-....', '7': '--...', '8': '---..', '9': '----.',
+    'A': '.-',    'B': '-...',  'C': '-.-.', 'D': '-..',
+    'E': '.',     'F': '..-.',  'G': '--.',  'H': '....',
+    'I': '..',    'J': '.---',  'K': '-.-',  'L': '.-..',
+    'M': '--',    'N': '-.',    'O': '---',  'P': '.--.',
+    'Q': '--.-',  'R': '.-.',   'S': '...',  'T': '-',
+    'U': '..-',   'V': '...-',  'W': '.--',  'X': '-..-',
+    'Y': '-.--',  'Z': '--..'
+};
+
+async function generateMorseAudio(message, wpm, frequency) {
+    const dotDuration = 1.2 / wpm;
+    const timings = {
+        dot: dotDuration,
+        dash: dotDuration * 3,
+        intraChar: dotDuration,      // Pause between dots and dashes of a character
+        interChar: dotDuration * 3,      // Pause between characters
+        word: dotDuration * 7,         // Pause between words
+    };
+
+    const clips = [];
+    const words = message.trim().toUpperCase().split(/ +/); // Split by one or more spaces
+
+    for (let i = 0; i < words.length; i++) {
+        const word = words[i];
+        const chars = word.split('');
+        for (let j = 0; j < chars.length; j++) {
+            const char = chars[j];
+            if (MORSE_CODE[char]) {
+                const morse = MORSE_CODE[char];
+                for (let k = 0; k < morse.length; k++) {
+                    const m = morse[k];
+                    if (m === '.') clips.push({ isPause: false, duration: timings.dot });
+                    if (m === '-') clips.push({ isPause: false, duration: timings.dash });
+
+                    if (k < morse.length - 1) {
+                        clips.push({ isPause: true, duration: timings.intraChar });
+                    }
+                }
+            }
+            if (j < chars.length - 1) {
+                clips.push({ isPause: true, duration: timings.interChar });
+            }
+        }
+        if (i < words.length - 1) {
+            clips.push({ isPause: true, duration: timings.word });
+        }
+    }
+
+    const totalDuration = clips.reduce((sum, clip) => sum + clip.duration, 0);
+    if (totalDuration === 0) {
+        return null;
+    }
+
+    const offlineContext = new OfflineAudioContext(1, Math.ceil(context.sampleRate * totalDuration), context.sampleRate);
+    let offset = 0;
+
+    for (const clip of clips) {
+        if (clip.isPause) {
+            offset += clip.duration;
+        } else {
+            const gainNode = offlineContext.createGain();
+            gainNode.connect(offlineContext.destination);
+
+            const attackTime = 0.005;
+            const releaseTime = 0.005;
+            gainNode.gain.setValueAtTime(0, offset);
+            gainNode.gain.linearRampToValueAtTime(0.8, offset + attackTime);
+            gainNode.gain.setValueAtTime(0.8, offset + clip.duration - releaseTime);
+            gainNode.gain.linearRampToValueAtTime(0, offset + clip.duration);
+
+            const oscillator = offlineContext.createOscillator();
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(frequency, offset);
+            oscillator.connect(gainNode);
+
+            oscillator.start(offset);
+            oscillator.stop(offset + clip.duration);
+            offset += clip.duration;
+        }
+    }
+
+    return await offlineContext.startRendering();
+}
+
 window.addEventListener('load', function () {
 	init();
 	document.getElementById('speech-form').onsubmit = function (e) {
@@ -68,9 +155,71 @@ window.addEventListener('load', function () {
     document.getElementById('decrypt-button').addEventListener('click', decryptText);
 	document.getElementById('copy-to-body-button').addEventListener('click', copyToBody);
 	document.getElementById('copy-to-clipboard-button').addEventListener('click', copyToClipboard);
+
+    // --- UI Mode Toggling ---
+    const modeVoice = document.getElementById('mode-voice');
+    const modeMorse = document.getElementById('mode-morse');
+    const voiceSettings = document.getElementById('voice-settings');
+    const morseSettings = document.getElementById('morse-settings');
+
+    function toggleModeView() {
+        if (modeMorse.checked) {
+            voiceSettings.style.display = 'none';
+            morseSettings.style.display = 'block';
+        } else {
+            voiceSettings.style.display = 'block';
+            morseSettings.style.display = 'none';
+        }
+    }
+
+    modeVoice.addEventListener('change', toggleModeView);
+    modeMorse.addEventListener('change', toggleModeView);
 });
 
 async function generateAudio() {
+    const mode = document.querySelector('input[name="mode"]:checked').value;
+    const body = document.getElementById("body").value;
+
+    let renderedBuffer = null;
+
+    const generateButton = document.getElementById('generate-button');
+    generateButton.textContent = 'Generating...';
+    generateButton.disabled = true;
+
+    try {
+        if (mode === 'voice') {
+            renderedBuffer = await generateVoiceAudio();
+        } else {
+            const wpm = parseInt(document.getElementById('morse-wpm').value, 10);
+            const frequency = parseInt(document.getElementById('morse-frequency').value, 10);
+            renderedBuffer = await generateMorseAudio(body, wpm, frequency);
+        }
+
+        if (renderedBuffer) {
+            const wavBlob = audioBufferToWav(renderedBuffer);
+            const audioUrl = URL.createObjectURL(wavBlob);
+
+            const audioPlayback = document.getElementById('audio-playback');
+            const downloadLink = document.getElementById('download-link');
+            const audioOutput = document.getElementById('audio-output');
+
+            audioPlayback.src = audioUrl;
+            downloadLink.href = audioUrl;
+            audioOutput.style.display = 'block';
+        } else {
+             alert('Audio generation failed. The message may contain no valid characters.');
+        }
+
+    } catch (error) {
+        console.error('Error rendering audio:', error);
+        alert('An error occurred while generating the audio.');
+    } finally {
+        generateButton.textContent = 'Generate Audio File';
+        generateButton.disabled = false;
+    }
+}
+
+async function generateVoiceAudio() {
     // Read all controls
     const call = document.getElementById("call").value;
     const body = document.getElementById("body").value;
@@ -145,8 +294,7 @@ async function generateAudio() {
 
     const validClips = soundClips.filter(c => c !== null);
     if (validClips.length === 0) {
-        alert("No valid characters to generate audio.");
-        return;
+        return null;
     }
 
     const totalDuration = validClips.reduce((sum, clip) => sum + clip.duration, 0);
@@ -166,28 +314,7 @@ async function generateAudio() {
         }
     }
 
-    document.getElementById('generate-button').textContent = 'Generating...';
-    document.getElementById('generate-button').disabled = true;
-
-    try {
-        const renderedBuffer = await offlineContext.startRendering();
-        const wavBlob = audioBufferToWav(renderedBuffer);
-        const audioUrl = URL.createObjectURL(wavBlob);
-
-        const audioPlayback = document.getElementById('audio-playback');
-        const downloadLink = document.getElementById('download-link');
-        const audioOutput = document.getElementById('audio-output');
-
-        audioPlayback.src = audioUrl;
-        downloadLink.href = audioUrl;
-        audioOutput.style.display = 'block';
-    } catch (error) {
-        console.error('Error rendering audio:', error);
-        alert('An error occurred while generating the audio.');
-    } finally {
-        document.getElementById('generate-button').textContent = 'Generate Audio File';
-        document.getElementById('generate-button').disabled = false;
-    }
+    return await offlineContext.startRendering();
 }
 
 function audioBufferToWav(buffer) {
