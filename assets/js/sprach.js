@@ -14,19 +14,19 @@ function init() {
 	}
 	bufferLoader = new BufferLoader(
 		context, [
-			'/assets/sounds/0.wav',
-			'/assets/sounds/1.wav',
-			'/assets/sounds/2.wav',
-			'/assets/sounds/3.wav',
-			'/assets/sounds/4.wav',
-			'/assets/sounds/5.wav',
-			'/assets/sounds/6.wav',
-			'/assets/sounds/7.wav',
-			'/assets/sounds/8.wav',
-			'/assets/sounds/9.wav',
-			'/assets/sounds/achtung.wav',
-			'/assets/sounds/trennung.wav',
-			'/assets/sounds/ende.wav',
+			'assets/sounds/0.wav',
+			'assets/sounds/1.wav',
+			'assets/sounds/2.wav',
+			'assets/sounds/3.wav',
+			'assets/sounds/4.wav',
+			'assets/sounds/5.wav',
+			'assets/sounds/6.wav',
+			'assets/sounds/7.wav',
+			'assets/sounds/8.wav',
+			'assets/sounds/9.wav',
+			'assets/sounds/achtung.wav',
+			'assets/sounds/trennung.wav',
+			'assets/sounds/ende.wav',
 		],
 		finishedLoading
 	);
@@ -59,7 +59,7 @@ window.addEventListener('load', function () {
 		e.preventDefault();
 		generateAudio();
 	};
-	document.getElementById("keyboard").onkeypress = function (e) {
+	document.body.onkeypress = function (e) {
 		e = e || event;
 		key = String.fromCharCode(e.keyCode);
 		playSound(key, 0);
@@ -74,6 +74,7 @@ async function generateAudio() {
     // Read all controls
     const call = document.getElementById("call").value;
     const body = document.getElementById("body").value;
+    const pitch = parseFloat(document.getElementById('pitch-control').value);
     const speed = parseFloat(document.getElementById('speed-control').value);
     const callsignReps = parseInt(document.getElementById('callsign-reps').value, 10);
     const playAchtung = document.getElementById('achtung-signal').checked;
@@ -94,7 +95,7 @@ async function generateAudio() {
 
         if (soundIndex !== -1 && window.sounds[soundIndex]) {
             const buffer = window.sounds[soundIndex];
-            const duration = buffer.duration / speed;
+            const duration = buffer.duration / pitch;
             return { isPause: false, buffer, duration };
         }
         return null;
@@ -158,7 +159,7 @@ async function generateAudio() {
         } else {
             const source = offlineContext.createBufferSource();
             source.buffer = clip.buffer;
-            source.playbackRate.value = speed;
+            source.playbackRate.value = pitch;
             source.connect(offlineContext.destination);
             source.start(offset);
             offset += clip.duration;
