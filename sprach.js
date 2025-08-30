@@ -55,9 +55,9 @@ function finishedLoading(returnedBuffer) {
 }
 window.onload = function () {
 	init();
-	document.forms[0].onsubmit = function (e) {
+	document.getElementById('speech-form').onsubmit = function (e) {
 		e.preventDefault();
-		sendMessage()
+		generateAudio();
 	};
 	document.getElementById("keyboard").onkeypress = function (e) {
 		e = e || event;
@@ -66,34 +66,165 @@ window.onload = function () {
 	}
 	document.getElementById('encrypt-button').addEventListener('click', encryptText);
     document.getElementById('decrypt-button').addEventListener('click', decryptText);
-    setupAudioRecording();
+
+    const speedControl = document.getElementById('speed-control');
+    const speedValue = document.getElementById('speed-value');
+    speedControl.addEventListener('input', () => {
+        speedValue.textContent = parseFloat(speedControl.value).toFixed(1);
+    });
+
+    const pitchControl = document.getElementById('pitch-control');
+    const pitchValue = document.getElementById('pitch-value');
+    pitchControl.addEventListener('input', () => {
+        pitchValue.textContent = parseFloat(pitchControl.value).toFixed(1);
+    });
 }
 
-function sendMessage() {
-	var offset = context.currentTime;
-	var callRepeat = 4;
-	var delay = 4;
-	var speed = 0.8;
+async function generateAudio() {
+    const call = document.getElementById("call").value;
+    const body = document.getElementById("body").value;
+    const message = call + " " + body;
 
-	call = document.getElementById("call").value;
+    const pitch = parseFloat(document.getElementById('pitch-control').value);
+    const speed = parseFloat(document.getElementById('speed-control').value);
+    const shortPause = 0.1 / speed;
+    const longPause = 0.5 / speed;
 
-	for (var i = 0; i < callRepeat; i++) {
+    const soundClips = [];
+    let totalDuration = 0;
 
-		for (var j = 0; j < call.length; j++) {
-			playSound(call[j], offset + speed * j + (delay * i));
-		}
+    for (const char of message) {
+        let soundIndex = -1;
+        let isPause = false;
+        let pauseDuration = 0;
 
-	}
+        if (char === ' ') {
+            isPause = true;
+            pauseDuration = shortPause;
+        } else if (char === '_') {
+            isPause = true;
+            pauseDuration = longPause;
+        } else if (!isNaN(char)) {
+            soundIndex = parseInt(char, 10);
+        } else if (char === '*') {
+            soundIndex = 10;
+        } else if (char === '/') {
+            soundIndex = 11;
+        } else if (char === '+') {
+            soundIndex = 12;
+        }
 
-	playSound(10, offset + delay * callRepeat);
+        if (isPause) {
+            totalDuration += pauseDuration;
+            soundClips.push({ isPause: true, duration: pauseDuration });
+        } else if (soundIndex !== -1 && window.sounds[soundIndex]) {
+            const buffer = window.sounds[soundIndex];
+            const duration = buffer.duration / pitch;
+            totalDuration += duration;
+            soundClips.push({ isPause: false, buffer, duration });
+        }
+    }
 
-	body = document.getElementById("body").value;
+    if (soundClips.length === 0) {
+        alert("No valid characters to generate audio.");
+        return;
+    }
 
-	for (var k = 0; k < body.length; k++) {
-		playSound(body[k], offset + speed * k + (delay * callRepeat) + 2);
-	}
+    const offlineContext = new OfflineAudioContext(1, context.sampleRate * totalDuration, context.sampleRate);
+    let offset = 0;
 
-	playSound(12, offset + speed * body.length + (delay * callRepeat) + 3);
+    for (const clip of soundClips) {
+        if (clip.isPause) {
+            offset += clip.duration;
+        } else {
+            const source = offlineContext.createBufferSource();
+            source.buffer = clip.buffer;
+            source.playbackRate.value = pitch;
+            source.connect(offlineContext.destination);
+            source.start(offset);
+            offset += clip.duration;
+        }
+    }
+
+    document.getElementById('generate-button').textContent = 'Generating...';
+    document.getElementById('generate-button').disabled = true;
+
+    try {
+        const renderedBuffer = await offlineContext.startRendering();
+        const wavBlob = audioBufferToWav(renderedBuffer);
+        const audioUrl = URL.createObjectURL(wavBlob);
+
+        const audioPlayback = document.getElementById('audio-playback');
+        const downloadLink = document.getElementById('download-link');
+        const audioOutput = document.getElementById('audio-output');
+
+        audioPlayback.src = audioUrl;
+        downloadLink.href = audioUrl;
+        audioOutput.style.display = 'block';
+    } catch (error) {
+        console.error('Error rendering audio:', error);
+        alert('An error occurred while generating the audio.');
+    } finally {
+        document.getElementById('generate-button').textContent = 'Generate Audio File';
+        document.getElementById('generate-button').disabled = false;
+    }
+}
+
+function audioBufferToWav(buffer) {
+    const numOfChan = buffer.numberOfChannels;
+    const length = buffer.length * numOfChan * 2 + 44;
+    const bufferArray = new ArrayBuffer(length);
+    const view = new DataView(bufferArray);
+    const channels = [];
+    let i, sample;
+    let offset = 0;
+    let pos = 0;
+
+    // Helper function
+    const setUint16 = (data) => {
+        view.setUint16(pos, data, true);
+        pos += 2;
+    }
+    const setUint32 = (data) => {
+        view.setUint32(pos, data, true);
+        pos += 4;
+    }
+
+    // RIFF header
+    setUint32(0x46464952); // "RIFF"
+    setUint32(length - 8); // file length - 8
+    setUint32(0x45564157); // "WAVE"
+
+    // "fmt " subchunk
+    setUint32(0x20746d66); // "fmt "
+    setUint32(16); // chunk size
+    setUint16(1); // PCM
+    setUint16(numOfChan);
+    setUint32(buffer.sampleRate);
+    setUint32(buffer.sampleRate * 2 * numOfChan); // byte rate
+    setUint16(numOfChan * 2); // block align
+    setUint16(16); // bits per sample
+
+    // "data" subchunk
+    setUint32(0x61746164); // "data"
+    setUint32(length - pos - 4);
+
+    // Write the PCM samples
+    for (i = 0; i < buffer.numberOfChannels; i++) {
+        channels.push(buffer.getChannelData(i));
+    }
+
+    while (pos < length) {
+        for (i = 0; i < numOfChan; i++) {
+            sample = Math.max(-1, Math.min(1, channels[i][offset])); // clamp
+            sample = (sample < 0 ? sample * 0x8000 : sample * 0x7FFF); // scale to 16-bit
+            view.setInt16(pos, sample, true);
+            pos += 2;
+        }
+        offset++;
+    }
+
+    return new Blob([view], { type: 'audio/wav' });
 }
 
 function xorCipher(text, key) {
@@ -115,6 +246,7 @@ function encryptText() {
     // To make it "speakable", we convert to char codes
     const speakableEncrypted = encrypted.split('').map(c => c.charCodeAt(0)).join(' ');
     document.getElementById('cipher-text').value = speakableEncrypted;
+    document.getElementById('body').value = speakableEncrypted; // Streamlined workflow
 }
 
 function decryptText() {
@@ -128,43 +260,4 @@ function decryptText() {
     const encrypted = cipherText.split(' ').map(c => String.fromCharCode(parseInt(c, 10))).join('');
     const decrypted = xorCipher(encrypted, key);
     document.getElementById('plain-text').value = decrypted;
-}
-
-function setupAudioRecording() {
-    const startButton = document.getElementById('start-record-button');
-    const stopButton = document.getElementById('stop-record-button');
-    const audioPlayback = document.getElementById('audio-playback');
-    let mediaRecorder;
-    let audioChunks = [];
-
-    async function startRecording() {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            mediaRecorder = new MediaRecorder(stream);
-            mediaRecorder.ondataavailable = event => {
-                audioChunks.push(event.data);
-            };
-            mediaRecorder.onstop = () => {
-                const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-                const audioUrl = URL.createObjectURL(audioBlob);
-                audioPlayback.src = audioUrl;
-                audioChunks = [];
-            };
-            mediaRecorder.start();
-            startButton.disabled = true;
-            stopButton.disabled = false;
-        } catch (err) {
-            console.error('Error accessing microphone:', err);
-            alert('Could not access microphone. Please ensure you have given permission.');
-        }
-    }
-
-    function stopRecording() {
-        mediaRecorder.stop();
-        startButton.disabled = false;
-        stopButton.disabled = true;
-    }
-
-    startButton.addEventListener('click', startRecording);
-    stopButton.addEventListener('click', stopRecording);
 }
