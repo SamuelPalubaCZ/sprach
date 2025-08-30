@@ -67,17 +67,6 @@ window.onload = function () {
 	document.getElementById('encrypt-button').addEventListener('click', encryptText);
     document.getElementById('decrypt-button').addEventListener('click', decryptText);
 
-    const speedControl = document.getElementById('speed-control');
-    const speedValue = document.getElementById('speed-value');
-    speedControl.addEventListener('input', () => {
-        speedValue.textContent = parseFloat(speedControl.value).toFixed(1);
-    });
-
-    const pitchControl = document.getElementById('pitch-control');
-    const pitchValue = document.getElementById('pitch-value');
-    pitchControl.addEventListener('input', () => {
-        pitchValue.textContent = parseFloat(pitchControl.value).toFixed(1);
-    });
 }
 
 async function generateAudio() {
@@ -89,8 +78,9 @@ async function generateAudio() {
     const callsignReps = parseInt(document.getElementById('callsign-reps').value, 10);
     const playAchtung = document.getElementById('achtung-signal').checked;
     const autoPause = document.getElementById('auto-pause').checked;
+    const autoPauseDuration = parseInt(document.getElementById('auto-pause-duration').value, 10);
 
-    const shortPause = 0.1 / speed;
+    const shortPause = (autoPauseDuration / 1000) / speed;
     const longPause = 0.5 / speed;
 
     const soundClips = [];
