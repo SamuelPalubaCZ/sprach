@@ -74,7 +74,6 @@ async function generateAudio() {
     // Read all controls
     const call = document.getElementById("call").value;
     const body = document.getElementById("body").value;
-    const pitch = parseFloat(document.getElementById('pitch-control').value);
     const speed = parseFloat(document.getElementById('speed-control').value);
     const callsignReps = parseInt(document.getElementById('callsign-reps').value, 10);
     const playAchtung = document.getElementById('achtung-signal').checked;
@@ -95,7 +94,7 @@ async function generateAudio() {
 
         if (soundIndex !== -1 && window.sounds[soundIndex]) {
             const buffer = window.sounds[soundIndex];
-            const duration = buffer.duration / pitch;
+            const duration = buffer.duration / speed;
             return { isPause: false, buffer, duration };
         }
         return null;
@@ -159,7 +158,7 @@ async function generateAudio() {
         } else {
             const source = offlineContext.createBufferSource();
             source.buffer = clip.buffer;
-            source.playbackRate.value = pitch;
+            source.playbackRate.value = speed;
             source.connect(offlineContext.destination);
             source.start(offset);
             offset += clip.duration;
