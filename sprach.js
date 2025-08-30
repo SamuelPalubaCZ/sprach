@@ -66,7 +66,8 @@ window.onload = function () {
 	}
 	document.getElementById('encrypt-button').addEventListener('click', encryptText);
     document.getElementById('decrypt-button').addEventListener('click', decryptText);
-
+	document.getElementById('copy-to-body-button').addEventListener('click', copyToBody);
+	document.getElementById('copy-to-clipboard-button').addEventListener('click', copyToClipboard);
 }
 
 async function generateAudio() {
@@ -265,7 +266,21 @@ function encryptText() {
     // To make it "speakable", we convert to char codes
     const speakableEncrypted = encrypted.split('').map(c => c.charCodeAt(0)).join(' ');
     document.getElementById('cipher-text').value = speakableEncrypted;
-    document.getElementById('body').value = speakableEncrypted; // Streamlined workflow
+}
+
+function copyToBody() {
+    const cipherText = document.getElementById('cipher-text').value;
+    document.getElementById('body').value = cipherText;
+}
+
+function copyToClipboard() {
+    const cipherText = document.getElementById('cipher-text').value;
+    navigator.clipboard.writeText(cipherText).then(() => {
+        // Optional: give user feedback
+        // alert('Copied to clipboard');
+    }, (err) => {
+        console.error('Could not copy text: ', err);
+    });
 }
 
 function decryptText() {
@@ -276,7 +291,7 @@ function decryptText() {
         return;
     }
     // Convert from char codes back to string
-    const encrypted = cipherText.split(' ').map(c => String.fromCharCode(parseInt(c, 10))).join('');
+    const encrypted = cipherText.split(' ').filter(c => c).map(c => String.fromCharCode(parseInt(c, 10))).join('');
     const decrypted = xorCipher(encrypted, key);
     document.getElementById('plain-text').value = decrypted;
 }
