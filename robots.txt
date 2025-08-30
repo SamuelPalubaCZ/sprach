@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://github.com/SamuelPalubaCZ/sprach
+
+# Disallow admin areas (if any in future)
+Disallow: /admin/
+Disallow: /private/
+
+# Allow important files
+Allow: /sounds/
+Allow: /css/
+Allow: /js/
+
+# Crawl delay
+Crawl-delay: 1 

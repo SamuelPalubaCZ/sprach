@@ -42,7 +42,7 @@ function playSound(key, time) {
 		if (key == '+') key = 12;
 	}
 
-	if (!isNaN(key)) {
+	if (!isNaN(key) && key >= 0 && key <= 12) {
 		var source = context.createBufferSource();
 		source.buffer = window.sounds[key];
 		source.connect(context.destination);
@@ -55,21 +55,132 @@ function finishedLoading(returnedBuffer) {
 }
 window.onload = function () {
 	init();
-	document.getElementById('speech-form').onsubmit = function (e) {
-		e.preventDefault();
-		generateAudio();
-	};
-	document.getElementById("keyboard").onkeypress = function (e) {
-		e = e || event;
-		key = String.fromCharCode(e.keyCode);
-		playSound(key, 0);
+	
+	// Kontrola existence formuláře
+	const speechForm = document.getElementById('speech-form');
+	if (speechForm) {
+		speechForm.onsubmit = function (e) {
+			e.preventDefault();
+			generateAudio();
+		};
+	} else {
+		console.error('Speech form not found');
 	}
-	document.getElementById('encrypt-button').addEventListener('click', encryptText);
-    document.getElementById('decrypt-button').addEventListener('click', decryptText);
-	document.getElementById('copy-to-body-button').addEventListener('click', copyToBody);
-	document.getElementById('copy-to-clipboard-button').addEventListener('click', copyToClipboard);
+	
+	// Kontrola existence tlačítek pro šifrování
+	const encryptButton = document.getElementById('encrypt-button');
+	const decryptButton = document.getElementById('decrypt-button');
+	const copyToBodyButton = document.getElementById('copy-to-body-button');
+	const copyToClipboardButton = document.getElementById('copy-to-clipboard-button');
+	
+	if (encryptButton) {
+		encryptButton.addEventListener('click', encryptText);
+		console.log('Encrypt button event listener added');
+	} else {
+		console.error('Encrypt button not found');
+	}
+	
+	if (decryptButton) {
+		decryptButton.addEventListener('click', decryptText);
+		console.log('Decrypt button event listener added');
+	} else {
+		console.error('Decrypt button not found');
+	}
+	
+	if (copyToBodyButton) {
+		copyToBodyButton.addEventListener('click', copyToBody);
+		console.log('Copy to body button event listener added');
+	} else {
+		console.error('Copy to body button not found');
+	}
+	
+	if (copyToClipboardButton) {
+		copyToClipboardButton.addEventListener('click', copyToClipboard);
+		console.log('Copy to clipboard button event listener added');
+	} else {
+		console.error('Copy to clipboard button not found');
+	}
+	
+	// Přidání range slider funkcí
+	setupRangeSliders();
+	
+	// Přidání klávesových zkratek
+	setupKeyboardShortcuts();
+	
+	// Přidání animací a efektů
+	setupAnimations();
 }
 
+// Nové funkce pro lepší UX
+function setupRangeSliders() {
+	const speedControl = document.getElementById('speed-control');
+	const pitchControl = document.getElementById('pitch-control');
+	const speedValue = document.getElementById('speed-value');
+	const pitchValue = document.getElementById('pitch-value');
+	
+	if (speedControl && speedValue) {
+		speedControl.addEventListener('input', function() {
+			speedValue.textContent = this.value;
+		});
+	}
+	
+	if (pitchControl && pitchValue) {
+		pitchControl.addEventListener('input', function() {
+			pitchValue.textContent = this.value;
+		});
+	}
+}
+
+function setupKeyboardShortcuts() {
+	document.addEventListener('keydown', function(e) {
+		// Ctrl + Enter pro generování audio
+		if (e.ctrlKey && e.key === 'Enter') {
+			e.preventDefault();
+			generateAudio();
+		}
+		
+		// Ctrl + E pro šifrování
+		if (e.ctrlKey && e.key === 'e') {
+			e.preventDefault();
+			encryptText();
+		}
+		
+		// Ctrl + D pro dešifrování
+		if (e.ctrlKey && e.key === 'd') {
+			e.preventDefault();
+			decryptText();
+		}
+		
+		// Ctrl + C pro kopírování (přesahuje do clipboard)
+		if (e.ctrlKey && e.key === 'c') {
+			// Standardní funkce prohlížeče
+		}
+	});
+}
+
+function setupAnimations() {
+	// Přidání loading stavů
+	const generateButton = document.getElementById('generate-button');
+	if (generateButton) {
+		generateButton.addEventListener('click', function() {
+			this.classList.add('loading');
+		});
+	}
+	
+	// Přidání hover efektů pro karty
+	const cards = document.querySelectorAll('.card');
+	cards.forEach(card => {
+		card.addEventListener('mouseenter', function() {
+			this.style.transform = 'translateY(-5px)';
+		});
+		
+		card.addEventListener('mouseleave', function() {
+			this.style.transform = 'translateY(0)';
+		});
+	});
+}
+
+// Vylepšená funkce pro generování audio s lepším UX
 async function generateAudio() {
     // Read all controls
     const call = document.getElementById("call").value;
@@ -80,6 +191,12 @@ async function generateAudio() {
     const playAchtung = document.getElementById('achtung-signal').checked;
     const autoPause = document.getElementById('auto-pause').checked;
     const autoPauseDuration = parseInt(document.getElementById('auto-pause-duration').value, 10);
+
+    // Validace vstupu
+    if (!call || !body) {
+        showNotification('Prosím vyplňte volací znak a zprávu.', 'error');
+        return;
+    }
 
     const shortPause = (autoPauseDuration / 1000) / speed;
     const longPause = 0.5 / speed;
@@ -145,7 +262,7 @@ async function generateAudio() {
 
     const validClips = soundClips.filter(c => c !== null);
     if (validClips.length === 0) {
-        alert("No valid characters to generate audio.");
+        showNotification("Žádné platné znaky k generování audio.", 'error');
         return;
     }
 
@@ -166,10 +283,14 @@ async function generateAudio() {
         }
     }
 
-    document.getElementById('generate-button').textContent = 'Generating...';
-    document.getElementById('generate-button').disabled = true;
+    const generateButton = document.getElementById('generate-button');
+    generateButton.textContent = 'Generování...';
+    generateButton.disabled = true;
+    generateButton.classList.add('loading');
 
     try {
+        showNotification('Generuji audio soubor...', 'info');
+        
         const renderedBuffer = await offlineContext.startRendering();
         const wavBlob = audioBufferToWav(renderedBuffer);
         const audioUrl = URL.createObjectURL(wavBlob);
@@ -181,12 +302,19 @@ async function generateAudio() {
         audioPlayback.src = audioUrl;
         downloadLink.href = audioUrl;
         audioOutput.style.display = 'block';
+        
+        showNotification('Audio soubor byl úspěšně vygenerován!', 'success');
+        
+        // Scroll na audio output
+        audioOutput.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        
     } catch (error) {
         console.error('Error rendering audio:', error);
-        alert('An error occurred while generating the audio.');
+        showNotification('Chyba při generování audio souboru.', 'error');
     } finally {
-        document.getElementById('generate-button').textContent = 'Generate Audio File';
-        document.getElementById('generate-button').disabled = false;
+        generateButton.textContent = 'Generate Audio File';
+        generateButton.disabled = false;
+        generateButton.classList.remove('loading');
     }
 }
 
@@ -248,50 +376,188 @@ function audioBufferToWav(buffer) {
 }
 
 function xorCipher(text, key) {
+    if (!text || !key) {
+        throw new Error('Text a klíč jsou povinné parametry');
+    }
+    
+    if (typeof text !== 'string' || typeof key !== 'string') {
+        throw new Error('Text a klíč musí být řetězce');
+    }
+    
+    if (key.length === 0) {
+        throw new Error('Klíč nemůže být prázdný');
+    }
+    
     let result = '';
     for (let i = 0; i < text.length; i++) {
-        result += String.fromCharCode(text.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+        const charCode = text.charCodeAt(i);
+        const keyCode = key.charCodeAt(i % key.length);
+        result += String.fromCharCode(charCode ^ keyCode);
     }
     return result;
 }
 
 function encryptText() {
-    const plainText = document.getElementById('plain-text').value;
-    const key = document.getElementById('cipher-key').value;
-    if (!key) {
-        alert('Please enter a cipher key.');
+    const plainTextElement = document.getElementById('plain-text');
+    const keyElement = document.getElementById('cipher-key');
+    const cipherTextElement = document.getElementById('cipher-text');
+    
+    if (!plainTextElement || !keyElement || !cipherTextElement) {
+        console.error('Required elements not found');
         return;
     }
-    const encrypted = xorCipher(plainText, key);
-    // To make it "speakable", we convert to char codes
-    const speakableEncrypted = encrypted.split('').map(c => c.charCodeAt(0)).join(' ');
-    document.getElementById('cipher-text').value = speakableEncrypted;
+    
+    const plainText = plainTextElement.value;
+    const key = keyElement.value;
+    
+    if (!key) {
+        alert('Prosím zadejte šifrovací klíč.');
+        return;
+    }
+    
+    if (!plainText) {
+        alert('Prosím zadejte text k zašifrování.');
+        return;
+    }
+    
+    try {
+        const encrypted = xorCipher(plainText, key);
+        // To make it "speakable", we convert to char codes
+        const speakableEncrypted = encrypted.split('').map(c => c.charCodeAt(0)).join(' ');
+        cipherTextElement.value = speakableEncrypted;
+        console.log('Text successfully encrypted');
+    } catch (error) {
+        console.error('Chyba při šifrování:', error);
+        alert('Chyba při šifrování: ' + error.message);
+    }
 }
 
 function copyToBody() {
-    const cipherText = document.getElementById('cipher-text').value;
-    document.getElementById('body').value = cipherText;
+    const cipherTextElement = document.getElementById('cipher-text');
+    const bodyElement = document.getElementById('body');
+    
+    if (!cipherTextElement || !bodyElement) {
+        console.error('Required elements not found');
+        return;
+    }
+    
+    const cipherText = cipherTextElement.value;
+    if (!cipherText) {
+        alert('Prosím nejdříve zašifrujte nějaký text.');
+        return;
+    }
+    
+    bodyElement.value = cipherText;
 }
 
 function copyToClipboard() {
-    const cipherText = document.getElementById('cipher-text').value;
-    navigator.clipboard.writeText(cipherText).then(() => {
-        // Optional: give user feedback
-        // alert('Copied to clipboard');
-    }, (err) => {
-        console.error('Could not copy text: ', err);
-    });
+    const cipherTextElement = document.getElementById('cipher-text');
+    
+    if (!cipherTextElement) {
+        console.error('Required element not found');
+        return;
+    }
+    
+    const cipherText = cipherTextElement.value;
+    if (!cipherText) {
+        alert('Prosím nejdříve zašifrujte nějaký text.');
+        return;
+    }
+    
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(cipherText).then(() => {
+            // Optional: give user feedback
+            // alert('Zkopírováno do schránky');
+        }, (err) => {
+            console.error('Could not copy text: ', err);
+            alert('Nepodařilo se zkopírovat text do schránky.');
+        });
+    } else {
+        // Fallback pro starší prohlížeče
+        const textArea = document.createElement('textarea');
+        textArea.value = cipherText;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+            document.execCommand('copy');
+            // alert('Zkopírováno do schránky');
+        } catch (err) {
+            console.error('Fallback copy failed: ', err);
+            alert('Nepodařilo se zkopírovat text do schránky.');
+        }
+        document.body.removeChild(textArea);
+    }
 }
 
 function decryptText() {
-    const cipherText = document.getElementById('cipher-text').value;
-    const key = document.getElementById('cipher-key').value;
-    if (!key) {
-        alert('Please enter a cipher key.');
+    const cipherTextElement = document.getElementById('cipher-text');
+    const keyElement = document.getElementById('cipher-key');
+    const plainTextElement = document.getElementById('plain-text');
+    
+    if (!cipherTextElement || !keyElement || !plainTextElement) {
+        console.error('Required elements not found');
         return;
     }
-    // Convert from char codes back to string
-    const encrypted = cipherText.split(' ').filter(c => c).map(c => String.fromCharCode(parseInt(c, 10))).join('');
-    const decrypted = xorCipher(encrypted, key);
-    document.getElementById('plain-text').value = decrypted;
+    
+    const cipherText = cipherTextElement.value;
+    const key = keyElement.value;
+    
+    if (!key) {
+        alert('Prosím zadejte šifrovací klíč.');
+        return;
+    }
+    
+    if (!cipherText) {
+        alert('Prosím zadejte zašifrovaný text k dešifrování.');
+        return;
+    }
+    
+    try {
+        // Convert from char codes back to string
+        const encrypted = cipherText.split(' ').filter(c => c).map(c => String.fromCharCode(parseInt(c, 10))).join('');
+        const decrypted = xorCipher(encrypted, key);
+        plainTextElement.value = decrypted;
+    } catch (error) {
+        console.error('Chyba při dešifrování:', error);
+        alert('Chyba při dešifrování. Zkontrolujte formát zašifrovaného textu.');
+    }
+}
+
+// Funkce pro zobrazování notifikací
+function showNotification(message, type = 'info') {
+    // Vytvoření notifikačního elementu
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+        <div class="notification-content">
+            <span class="notification-icon">${getNotificationIcon(type)}</span>
+            <span class="notification-message">${message}</span>
+            <button class="notification-close" onclick="this.parentElement.parentElement.remove()">×</button>
+        </div>
+    `;
+    
+    // Přidání do DOM
+    document.body.appendChild(notification);
+    
+    // Automatické odstranění po 5 sekundách
+    setTimeout(() => {
+        if (notification.parentElement) {
+            notification.remove();
+        }
+    }, 5000);
+    
+    // Animace
+    setTimeout(() => {
+        notification.classList.add('show');
+    }, 100);
+}
+
+function getNotificationIcon(type) {
+    const icons = {
+        'success': '✅',
+        'error': '❌',
+        'warning': '⚠️',
+        'info': 'ℹ️'
+    };
+    return icons[type] || icons['info'];
 }

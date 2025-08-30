@@ -1,117 +1,283 @@
 <!doctype html>
-<html lang="en">
+<html lang="cs">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stasi Speech Machine</title>
+    <meta name="description" content="Sprach Machine - Number Station Simulator s pokročilými funkcemi šifrování a generování audio zpráv. Ideální pro radio komunikaci a kryptografické experimenty.">
+    <meta name="keywords" content="number station, šifrování, audio generátor, radio komunikace, kryptografie, STASI, morse code">
+    <meta name="author" content="SamuelPalubaCZ">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://github.com/SamuelPalubaCZ/sprach">
+    <meta property="og:title" content="Sprach Machine - Number Station Simulator">
+    <meta property="og:description" content="Pokročilý simulátor number station s funkcemi šifrování a generování audio zpráv.">
+    <meta property="og:image" content="https://github.com/SamuelPalubaCZ/sprach/raw/main/assets/preview.png">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://github.com/SamuelPalubaCZ/sprach">
+    <meta property="twitter:title" content="Sprach Machine - Number Station Simulator">
+    <meta property="twitter:description" content="Pokročilý simulátor number station s funkcemi šifrování a generování audio zpráv.">
+    <meta property="twitter:image" content="https://github.com/SamuelPalubaCZ/sprach/raw/main/assets/preview.png">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔊</text></svg>">
+    
+    <title>Sprach Machine - Number Station Simulator | SamuelPalubaCZ</title>
+    
+    <!-- CSS -->
     <link rel="stylesheet" href="css/normal-look.css">
-    <script src="buffer-loader.js"></script>
-    <script src="sprach.js"></script>
+    <link rel="stylesheet" href="css/components.css">
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Sprach Machine",
+        "description": "Number Station Simulator s pokročilými funkcemi šifrování",
+        "url": "https://github.com/SamuelPalubaCZ/sprach",
+        "author": {
+            "@type": "Person",
+            "name": "SamuelPalubaCZ"
+        },
+        "applicationCategory": "MultimediaApplication",
+        "operatingSystem": "Web Browser",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        }
+    }
+    </script>
 </head>
 <body>
-
     <div id="layout">
-        <div class="header">
-            <h1 class="brand-title">Sprach Machine</h1>
-            <h2 class="brand-tagline">Number Station Simulator</h2>
-        </div>
+        <header class="header">
+            <div class="header-content">
+                <h1 class="brand-title">
+                    <span class="icon">🔊</span>
+                    Sprach Machine
+                </h1>
+                <h2 class="brand-tagline">Number Station Simulator & Cipher Tool</h2>
+                <p class="brand-description">Pokročilý simulátor number station s funkcemi šifrování, generování audio zpráv a kryptografickými nástroji</p>
+            </div>
+        </header>
 
-        <div class="content">
-            <div class="program-section">
-                <h2 class="content-subhead">Message Transmitter</h2>
+        <main class="content">
+            <!-- Message Transmitter Section -->
+            <section class="program-section card">
+                <div class="section-header">
+                    <h2 class="content-subhead">
+                        <span class="icon">📡</span>
+                        Message Transmitter
+                    </h2>
+                    <p class="section-description">Generujte audio zprávy s pokročilými možnostmi nastavení</p>
+                </div>
+                
                 <form id="speech-form" class="pure-form pure-form-stacked" onsubmit="return false;">
                     <fieldset>
-                        <label for="call">Call Sign</label>
-                        <input id="call" type="text" value="271">
+                        <legend>Základní nastavení</legend>
+                        
+                        <div class="form-group">
+                            <label for="call">Call Sign</label>
+                            <input id="call" type="text" value="271" placeholder="Zadejte volací znak">
+                        </div>
 
-                        <label for="body">Message Body (Numbers only)</label>
-                        <textarea rows="6" name="body" id="body">846 846 20 20 83167 83167 14528 14528 30778 30778 13436 13436 50234 50234 67256 67256 15654 15654 27414 27414 15837 15837 75251 75251 51820 51820 37982 37982 64162 64162 18385 18385 90381 90381 77942 77942 12692 12692 22897 22897 69231 69231 14881 14881 846 846 20 20 00000</textarea>
-                        <p style="font-size: 0.9em; color: #666;">Use a space for a short pause, and `_` for a long pause. Special characters: `* / + #`.</p>
+                        <div class="form-group">
+                            <label for="body">Message Body (Numbers only)</label>
+                            <textarea rows="6" name="body" id="body" placeholder="Zadejte číselnou zprávu">846 846 20 20 83167 83167 14528 14528 30778 30778 13436 13436 50234 50234 67256 67256 15654 15654 27414 27414 15837 15837 75251 75251 51820 51820 37982 37982 64162 64162 18385 18385 90381 90381 77942 77942 12692 12692 22897 22897 69231 69231 14881 14881 846 846 20 20 00000</textarea>
+                            <p class="help-text">
+                                <span class="icon">💡</span>
+                                Použijte mezeru pro krátkou pauzu a `_` pro dlouhou pauzu. Speciální znaky: `* / + #`
+                            </p>
+                        </div>
 
                         <div class="broadcast-options">
-                            <div class="option-group">
-                                <label for="callsign-reps">Callsign Reps:</label>
-                                <input type="number" id="callsign-reps" value="2" min="1" max="10">
-                            </div>
-                            <div class="option-group">
-                                <label for="achtung-signal"><input type="checkbox" id="achtung-signal" checked> Play 'Achtung'</label>
-                            </div>
-                            <div class="option-group">
-                                <label for="auto-pause"><input type="checkbox" id="auto-pause" checked> Auto-pause</label>
-                                <input type="number" id="auto-pause-duration" value="100" min="0" step="50" style="width: 70px; margin-left: 5px;"> ms
+                            <h3>Broadcast Options</h3>
+                            <div class="options-grid">
+                                <div class="option-group">
+                                    <label for="callsign-reps">Callsign Reps:</label>
+                                    <input type="number" id="callsign-reps" value="2" min="1" max="10">
+                                </div>
+                                <div class="option-group">
+                                    <label for="achtung-signal">
+                                        <input type="checkbox" id="achtung-signal" checked>
+                                        Play 'Achtung'
+                                    </label>
+                                </div>
+                                <div class="option-group">
+                                    <label for="auto-pause">
+                                        <input type="checkbox" id="auto-pause" checked>
+                                        Auto-pause
+                                    </label>
+                                    <input type="number" id="auto-pause-duration" value="100" min="0" step="50" style="width: 70px; margin-left: 5px;"> ms
+                                </div>
                             </div>
                         </div>
 
                         <div class="audio-controls">
-                            <div class="control-group">
-                                <label for="speed-control">Speed (0.5-2.0):</label>
-                                <input type="number" id="speed-control" min="0.5" max="2.0" value="1.0" step="0.1">
-                            </div>
-                            <div class="control-group">
-                                <label for="pitch-control">Pitch (0.5-2.0):</label>
-                                <input type="number" id="pitch-control" min="0.5" max="2.0" value="1.0" step="0.1">
+                            <h3>Audio Controls</h3>
+                            <div class="controls-grid">
+                                <div class="control-group">
+                                    <label for="speed-control">Speed (0.5-2.0):</label>
+                                    <input type="range" id="speed-control" min="0.5" max="2.0" value="1.0" step="0.1">
+                                    <span class="value-display" id="speed-value">1.0</span>
+                                </div>
+                                <div class="control-group">
+                                    <label for="pitch-control">Pitch (0.5-2.0):</label>
+                                    <input type="range" id="pitch-control" min="0.5" max="2.0" value="1.0" step="0.1">
+                                    <span class="value-display" id="pitch-value">1.0</span>
+                                </div>
                             </div>
                         </div>
 
-                        <button type="submit" id="generate-button" class="button-xlarge pure-button">Generate Audio File</button>
+                        <button type="submit" id="generate-button" class="button-xlarge pure-button">
+                            <span class="icon">🎵</span>
+                            Generate Audio File
+                        </button>
                     </fieldset>
                 </form>
-                <div id="audio-output" style="display: none; margin-top: 1em;">
-                    <h3 style="margin-bottom: 0.5em;">Generated Audio:</h3>
-                    <audio id="audio-playback" controls style="width: 100%;"></audio>
-                    <a id="download-link" href="#" download="message.wav" class="pure-button" style="margin-top: 0.5em; display: block; text-align: center;">Download WAV file</a>
+                
+                <div id="audio-output" class="audio-output" style="display: none;">
+                    <h3>Generated Audio</h3>
+                    <div class="audio-player">
+                        <audio id="audio-playback" controls></audio>
+                        <a id="download-link" href="#" download="message.wav" class="pure-button download-button">
+                            <span class="icon">⬇️</span>
+                            Download WAV file
+                        </a>
+                    </div>
                 </div>
-            </div>
+            </section>
 
-            <div class="encryption-section">
-                <h2 class="content-subhead">Cipher Tool</h2>
+            <!-- Cipher Tool Section -->
+            <section class="encryption-section card">
+                <div class="section-header">
+                    <h2 class="content-subhead">
+                        <span class="icon">🔐</span>
+                        Cipher Tool
+                    </h2>
+                    <p class="section-description">Pokročilé nástroje pro šifrování a dešifrování zpráv</p>
+                </div>
+                
                 <form class="pure-form pure-form-stacked" onsubmit="return false;">
                     <fieldset>
-                        <label for="plain-text">Plaintext</label>
-                        <textarea id="plain-text" rows="4"></textarea>
+                        <legend>Šifrování & Dešifrování</legend>
+                        
+                        <div class="form-group">
+                            <label for="plain-text">Plaintext</label>
+                            <textarea id="plain-text" rows="4" placeholder="Zadejte text k zašifrování"></textarea>
+                        </div>
 
-                        <label for="cipher-key">Cipher Key</label>
-                        <input type="text" id="cipher-key" value="STASI">
+                        <div class="form-group">
+                            <label for="cipher-key">Cipher Key</label>
+                            <input type="text" id="cipher-key" value="STASI" placeholder="Zadejte šifrovací klíč">
+                        </div>
 
-                        <button id="encrypt-button" class="pure-button">Encrypt</button>
-                        <button id="decrypt-button" class="pure-button">Decrypt</button>
+                        <div class="button-group">
+                            <button id="encrypt-button" class="pure-button primary">
+                                <span class="icon">🔒</span>
+                                Encrypt
+                            </button>
+                            <button id="decrypt-button" class="pure-button secondary">
+                                <span class="icon">🔓</span>
+                                Decrypt
+                            </button>
+                        </div>
 
-                        <label for="cipher-text">Ciphertext (for decryption)</label>
-                        <textarea id="cipher-text" rows="4"></textarea>
-                        <button id="copy-to-body-button" class="pure-button">Copy to Message Body</button>
-                        <button id="copy-to-clipboard-button" class="pure-button">Copy to Clipboard</button>
+                        <div class="form-group">
+                            <label for="cipher-text">Ciphertext (for decryption)</label>
+                            <textarea id="cipher-text" rows="4" placeholder="Zašifrovaný text se zobrazí zde"></textarea>
+                        </div>
+                        
+                        <div class="button-group">
+                            <button id="copy-to-body-button" class="pure-button">
+                                <span class="icon">📝</span>
+                                Copy to Message Body
+                            </button>
+                            <button id="copy-to-clipboard-button" class="pure-button">
+                                <span class="icon">📋</span>
+                                Copy to Clipboard
+                            </button>
+                        </div>
                     </fieldset>
                 </form>
-            </div>
+            </section>
 
-            <div class="keypad-section">
-                <h2 class="content-subhead">Manual Tones</h2>
+            <!-- Manual Tones Section -->
+            <section class="keypad-section card">
+                <div class="section-header">
+                    <h2 class="content-subhead">
+                        <span class="icon">🎹</span>
+                        Manual Tones
+                    </h2>
+                    <p class="section-description">Ruční přehrávání zvukových tónů pro testování</p>
+                </div>
+                
                 <nav class="nav">
-                    <ul class="nav-list">
-                        <li class="nav-item"><a class="pure-button" href="javascript:playSound(1,0)">1</a></li>
-                        <li class="nav-item"><a class="pure-button" href="javascript:playSound(2,0)">2</a></li>
-                        <li class="nav-item"><a class="pure-button" href="javascript:playSound(3,0)">3</a></li>
-                        <li class="nav-item"><a class="pure-button" href="javascript:playSound(4,0)">4</a></li>
-                        <li class="nav-item"><a class="pure-button" href="javascript:playSound(5,0)">5</a></li>
-                        <li class="nav-item"><a class="pure-button" href="javascript:playSound(6,0)">6</a></li>
-                        <li class="nav-item"><a class="pure-button" href="javascript:playSound(7,0)">7</a></li>
-                        <li class="nav-item"><a class="pure-button" href="javascript:playSound(8,0)">8</a></li>
-                        <li class="nav-item"><a class="pure-button" href="javascript:playSound(9,0)">9</a></li>
-                        <li class="nav-item"><a class="pure-button" href="javascript:playSound(0,0)">0</a></li>
-                    </ul>
-                    <ul class="nav-list">
-                        <li class="nav-item"><a class="pure-button" href="javascript:playSound(10,0)">Achtung (*)</a></li>
-                        <li class="nav-item"><a class="pure-button" href="javascript:playSound(11,0)">Trennung (/)</a></li>
-                        <li class="nav-item"><a class="pure-button" href="javascript:playSound(12,0)">Ende (+)</a></li>
-                    </ul>
+                    <div class="keypad-grid">
+                        <div class="keypad-row">
+                            <button class="pure-button keypad-button" onclick="playSound(1,0)">1</button>
+                            <button class="pure-button keypad-button" onclick="playSound(2,0)">2</button>
+                            <button class="pure-button keypad-button" onclick="playSound(3,0)">3</button>
+                            <button class="pure-button keypad-button" onclick="playSound(4,0)">4</button>
+                            <button class="pure-button keypad-button" onclick="playSound(5,0)">5</button>
+                        </div>
+                        <div class="keypad-row">
+                            <button class="pure-button keypad-button" onclick="playSound(6,0)">6</button>
+                            <button class="pure-button keypad-button" onclick="playSound(7,0)">7</button>
+                            <button class="pure-button keypad-button" onclick="playSound(8,0)">8</button>
+                            <button class="pure-button keypad-button" onclick="playSound(9,0)">9</button>
+                            <button class="pure-button keypad-button" onclick="playSound(0,0)">0</button>
+                        </div>
+                        <div class="keypad-row special-keys">
+                            <button class="pure-button keypad-button special" onclick="playSound(10,0)">
+                                <span class="icon">⚠️</span>
+                                Achtung (*)
+                            </button>
+                            <button class="pure-button keypad-button special" onclick="playSound(11,0)">
+                                <span class="icon">⏸️</span>
+                                Trennung (/)
+                            </button>
+                            <button class="pure-button keypad-button special" onclick="playSound(12,0)">
+                                <span class="icon">⏹️</span>
+                                Ende (+)
+                            </button>
+                        </div>
+                    </div>
                 </nav>
-            </div>
-        </div>
+            </section>
+        </main>
 
-        <div class="footer">
-            <p>Original by tom|hetmer|cz. Rebuilt by SamuelPalubaCZ (<a href="#" title="GitHub profile not provided">GitHub</a>).</p>
-        </div>
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Sprach Machine</h3>
+                    <p>Pokročilý simulátor number station s funkcemi šifrování a generování audio zpráv</p>
+                </div>
+                <div class="footer-section">
+                    <h3>GitHub Repository</h3>
+                    <a href="https://github.com/SamuelPalubaCZ/sprach" target="_blank" rel="noopener noreferrer" class="github-link">
+                        <span class="icon">📚</span>
+                        SamuelPalubaCZ/sprach
+                    </a>
+                </div>
+                <div class="footer-section">
+                    <h3>License</h3>
+                    <p>MIT License - Open Source</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 SamuelPalubaCZ. Built with modern web technologies.</p>
+            </div>
+        </footer>
     </div>
 
+    <!-- Scripts -->
+    <script src="buffer-loader.js"></script>
+    <script src="sprach.js"></script>
 </body>
 </html>
