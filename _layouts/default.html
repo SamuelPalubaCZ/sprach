@@ -1,95 +1,45 @@
 <!DOCTYPE html>
-<html lang="en-US">
+<html lang="{{ site.lang | default: "en-US" }}">
   <head>
     <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="/assets/css/enhanced-style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Orbitron:wght@400;500;700;900&display=swap" rel="stylesheet">
-    <title>SPRACH MACHINE - Cold War Numbers Station Simulator</title>
+    <link rel="stylesheet" href="{{ '/assets/css/style.css?v=' | append: site.github.build_revision | relative_url }}">
+    {% include head-custom.html %}
+
+{% seo %}
   </head>
 
   <body>
-    <div class="vintage-container">
-      <!-- Header with vintage radio styling -->
-      <header class="radio-header">
-        <div class="radio-face">
-          <div class="brand-section">
-            <h1 class="brand-title">SPRACH MACHINE</h1>
-            <p class="brand-tagline">Cold War Numbers Station Simulator</p>
-            <div class="led-indicators">
-              <div class="led power-led active" id="power-led"></div>
-              <div class="led tx-led" id="tx-led"></div>
-              <div class="led ready-led active" id="ready-led"></div>
-            </div>
-          </div>
-          
-          <!-- Navigation as radio buttons -->
-          <nav class="radio-nav">
-            <div class="nav-buttons">
-              <a href="/" class="radio-btn">
-                <span class="btn-label">HOME</span>
-              </a>
-              <a href="/transmitter.html" class="radio-btn">
-                <span class="btn-label">TRANSMITTER</span>
-              </a>
-              <a href="/cipher.html" class="radio-btn">
-                <span class="btn-label">CIPHER</span>
-              </a>
-              <a href="/manual_tones.html" class="radio-btn">
-                <span class="btn-label">MANUAL</span>
-              </a>
-              <a href="/training.html" class="radio-btn">
-                <span class="btn-label">TRAINING</span>
-              </a>
-            </div>
-          </nav>
-        </div>
-      </header>
 
-      <!-- Main content area -->
-      <main class="main-content">
-        <div class="content-wrapper">
-          {{ content }}
-        </div>
-      </main>
+    <header>
+      <div class="container">
+        <a id="a-title" href="{{ '/' | relative_url }}">
+          <h1>{{ site.title | default: site.github.repository_name }}</h1>
+        </a>
+        <h2>{{ site.description | default: site.github.project_tagline }}</h2>
 
-      <!-- Status bar -->
-      <footer class="status-bar">
-        <div class="status-section">
-          <span class="status-label">STATUS:</span>
-          <span class="status-value" id="system-status">READY</span>
-        </div>
-        <div class="status-section">
-          <span class="status-label">MODE:</span>
-          <span class="status-value" id="current-mode">VOICE</span>
-        </div>
-        <div class="status-section">
-          <span class="status-label">FREQ:</span>
-          <span class="status-value" id="current-freq">1000 Hz</span>
-        </div>
-        <div class="status-section">
-          <span class="status-label">WPM:</span>
-          <span class="status-value" id="current-wpm">53</span>
-        </div>
-      </footer>
+        <nav>
+          <a href="{{ '/' | relative_url }}">Home</a>
+          <a href="{{ '/transmitter.html' | relative_url }}">Transmitter</a>
+          <a href="{{ '/cipher.html' | relative_url }}">Cipher</a>
+          <a href="{{ '/manual_tones.html' | relative_url }}">Manual Tones</a>
+        </nav>
+
+        <section id="downloads">
+          {% if site.show_downloads %}
+            <a href="{{ site.github.zip_url }}" class="btn">Download as .zip</a>
+            <a href="{{ site.github.tar_url }}" class="btn">Download as .tar.gz</a>
+          {% endif %}
+          <a href="{{ site.github.repository_url }}" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
+        </section>
+      </div>
+    </header>
+
+    <div class="container">
+      <section id="main_content">
+        {{ content }}
+      </section>
     </div>
-
-    <!-- Enhanced Audio Context -->
-    <div id="audio-context" style="display: none;">
-      <audio id="background-noise" loop>
-        <source src="/assets/sounds/background-static.mp3" type="audio/mpeg">
-      </audio>
-    </div>
-
-    <!-- Load enhanced scripts -->
-    <script src="/assets/js/buffer-loader.js"></script>
-    <script src="/assets/js/enhanced-sprach.js"></script>
-    <script src="/assets/js/otp-cipher.js"></script>
-    <script src="/assets/js/morse-trainer.js"></script>
-    <script src="/assets/js/audio-effects.js"></script>
   </body>
-</html></absolute_file_name>
-    </file>
+</html>
