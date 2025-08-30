@@ -2,6 +2,7 @@
 // ripped off from http://www.html5rocks.com/en/tutorials/webaudio/intro/
 
 var context;
+var audioContext;
 var bufferLoader;
 
 function init() {
@@ -9,6 +10,7 @@ function init() {
 		// Fix up for prefixing
 		window.AudioContext = window.AudioContext || window.webkitAudioContext;
 		context = new AudioContext();
+		audioContext = context; // Make audioContext reference the same context
 	} catch (e) {
 		alert('Web Audio API is not supported in this browser');
 	}
@@ -457,68 +459,7 @@ window.addEventListener('load', function () {
     }
 });
 
-async function generateAudio() {
-    const mode = document.querySelector('input[name="mode"]:checked').value;
-    const body = document.getElementById("body").value;
-
-    let renderedBuffer = null;
-
-    const generateButton = document.getElementById('generate-button');
-    const originalText = generateButton.textContent;
-    generateButton.textContent = 'PROCESSING...';
-    generateButton.disabled = true;
-    
-    showTerminalMessage(`GENERATING ${mode.toUpperCase()} AUDIO...`, 'info');
-    logActivity(`AUDIO GENERATION STARTED: ${mode.toUpperCase()} MODE`);
-
-    try {
-        if (mode === 'voice') {
-            showTerminalMessage('SYNTHESIZING VOICE TRANSMISSION...', 'info');
-            renderedBuffer = await generateVoiceAudio();
-        } else {
-            const wpm = parseInt(document.getElementById('morse-wpm').value, 10);
-            const frequency = parseInt(document.getElementById('morse-frequency').value, 10);
-            showTerminalMessage(`ENCODING MORSE: ${wpm}WPM @ ${frequency}Hz`, 'info');
-            renderedBuffer = await generateMorseAudio(body, wpm, frequency);
-        }
-
-        if (renderedBuffer) {
-            showTerminalMessage('CONVERTING TO WAV FORMAT...', 'info');
-            const wavBlob = audioBufferToWav(renderedBuffer);
-            const audioUrl = URL.createObjectURL(wavBlob);
-
-            const audioPlayback = document.getElementById('audio-playback');
-            const downloadLink = document.getElementById('download-link');
-            const audioOutput = document.getElementById('audio-output');
-
-            audioPlayback.src = audioUrl;
-            downloadLink.href = audioUrl;
-            audioOutput.style.display = 'block';
-            
-            showTerminalMessage('AUDIO SYNTHESIS COMPLETE', 'success');
-            logActivity(`AUDIO FILE GENERATED: ${Math.round(renderedBuffer.duration * 1000)}ms duration`);
-            
-            // Add glowing effect to download section
-            if (audioOutput) {
-                audioOutput.style.boxShadow = '0 0 20px rgba(0, 255, 0, 0.5)';
-                setTimeout(() => {
-                    audioOutput.style.boxShadow = '';
-                }, 2000);
-            }
-        } else {
-            showTerminalMessage('SYNTHESIS FAILED: INVALID INPUT', 'error');
-            logActivity('ERROR: Audio generation failed - no valid characters');
-        }
-
-    } catch (error) {
-        console.error('Error rendering audio:', error);
-        showTerminalMessage('CRITICAL ERROR: SYNTHESIS FAILURE', 'error');
-        logActivity(`ERROR: ${error.message}`);
-    } finally {
-        generateButton.textContent = originalText;
-        generateButton.disabled = false;
-    }
-}
+// Old generateAudio function removed - duplicate function definition
 
 async function generateVoiceAudio() {
     // Read all controls
