@@ -1,131 +1,111 @@
 <!doctype html>
 <html>
-
 <head>
-
     <title>Stasi Speech Machine</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inconsolata">
+    <link rel="stylesheet" href="css/new-look.css">
     <script src="buffer-loader.js"></script>
     <script src="sprach.js"></script>
-    <link rel="stylesheet" href="css/pure-min.css">
-    <style scoped>
-        .button-xlarge {
-            font-size: 125%;
-        }
-    </style>
-    <!--[if lte IE 8]>
-        <link rel="stylesheet" href="css/main-grid-old-ie.css">
-    <![endif]-->
-    <!--[if gt IE 8]><!-->
-    <link rel="stylesheet" href="css/main-grid.css">
-    <!--<![endif]-->
-
-
-
-    <!--[if lte IE 8]>
-        <link rel="stylesheet" href="css/layouts/blog-old-ie.css">
-    <![endif]-->
-    <!--[if gt IE 8]><!-->
-    <link rel="stylesheet" href="css/layouts/blog.css">
-    <!--<![endif]-->
-
 </head>
-
 <body>
 
-    <div id="layout" class="pure-g">
-        <div class="sidebar pure-u-1 pure-u-med-1-4">
-            <div class="header">
-                <hgroup>
-                    <h1 class="brand-title">sprach machine</h1>
-                    <h2 class="brand-tagline">Alpha version.</h2>
-                </hgroup>
+    <div id="layout">
+        <div class="header">
+            <h1 class="brand-title">Sprach Machine</h1>
+            <h2 class="brand-tagline">Stasi-Speech-Generator Simulation</h2>
+        </div>
 
+        <div class="content">
+            <div class="program-section">
+                <h1 class="content-subhead">Message Program</h1>
+                <form class="pure-form pure-form-stacked">
+                    <fieldset>
+                        <label for="call">Call Sign</label>
+                        <input id="call" type="text" onclick="this.value=''" value="271">
+
+                        <label for="body">Message Body</label>
+                        <textarea rows="6" name="body" id="body" onclick="this.value=''">846 846 20 20 83167 83167 14528 14528 30778 30778 13436 13436 50234 50234 67256 67256 15654 15654 27414 27414 15837 15837 75251 75251 51820 51820 37982 37982 64162 64162 18385 18385 90381 90381 77942 77942 12692 12692 22897 22897 69231 69231 14881 14881 846 846 20 20 00000</textarea>
+
+                        <button type="submit" class="button-xlarge pure-button pure-button-primary">Transmit Message</button>
+                    </fieldset>
+                </form>
+            </div>
+
+            <div class="encryption-section">
+                <h1 class="content-subhead">Cipher Tool</h1>
+                <form class="pure-form pure-form-stacked" onsubmit="return false;">
+                    <fieldset>
+                        <label for="plain-text">Plaintext</label>
+                        <textarea id="plain-text" rows="4"></textarea>
+
+                        <label for="cipher-key">Cipher Key</label>
+                        <input type="text" id="cipher-key" value="STASI">
+
+                        <button id="encrypt-button" class="pure-button">Encrypt</button>
+                        <button id="decrypt-button" class="pure-button">Decrypt</button>
+
+                        <label for="cipher-text">Ciphertext</label>
+                        <textarea id="cipher-text" rows="4"></textarea>
+                    </fieldset>
+                </form>
+            </div>
+
+            <div class="recording-section">
+                <h1 class="content-subhead">Audio Recorder</h1>
+                <p>Record your own message.</p>
+                <button id="start-record-button" class="pure-button">Start Recording</button>
+                <button id="stop-record-button" class="pure-button" disabled>Stop Recording</button>
+                <audio id="audio-playback" controls></audio>
+            </div>
+
+            <div class="help-section">
+                <h1 class="content-subhead">Help / FAQ</h1>
+                <h3>What is this?</h3>
+                <p>This is a simulation of a numbers station, inspired by the East German "Stasi" speech generator. It converts numbers into a synthesized voice.</p>
+                <h3>How do I use the Speech Generator?</h3>
+                <p>Enter a numeric call sign and a message body of numbers, then press "Transmit Message". You can also click the number buttons or use the keyboard for manual input.</p>
+                <h3>How does the Cipher Tool work?</h3>
+                <p>You can encrypt text using the XOR cipher tool. The output is a string of numbers that you can then copy into the main message body for transmission. Use the same key to decrypt.</p>
+                <h3>How do I record audio?</h3>
+                <p>Use the audio recorder to record a message from your microphone. Press "Start Recording", and "Stop Recording" when you are finished. You can play back the recording using the audio player.</p>
+            </div>
+
+            <div class="keypad-section">
+                <h1 class="content-subhead">Manual Input</h1>
                 <nav class="nav">
                     <ul class="nav-list">
-                        <li class="nav-item">
-                            <a class="pure-button" href="javascript:playSound(7,0)">7</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="pure-button" href="javascript:playSound(8,0)">8</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="pure-button" href="javascript:playSound(9,0)">9</a>
-                        </li>
+                        <li class="nav-item"><a class="pure-button" href="javascript:playSound(1,0)">1</a></li>
+                        <li class="nav-item"><a class="pure-button" href="javascript:playSound(2,0)">2</a></li>
+                        <li class="nav-item"><a class="pure-button" href="javascript:playSound(3,0)">3</a></li>
                     </ul>
                     <ul class="nav-list">
-                        <li class="nav-item">
-                            <a class="pure-button" href="javascript:playSound(4,0)">4</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="pure-button" href="javascript:playSound(5,0)">5</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="pure-button" href="javascript:playSound(6,0)">6</a>
-                        </li>
+                        <li class="nav-item"><a class="pure-button" href="javascript:playSound(4,0)">4</a></li>
+                        <li class="nav-item"><a class="pure-button" href="javascript:playSound(5,0)">5</a></li>
+                        <li class="nav-item"><a class="pure-button" href="javascript:playSound(6,0)">6</a></li>
                     </ul>
                     <ul class="nav-list">
-                        <li class="nav-item">
-                            <a class="pure-button" href="javascript:playSound(1,0)">1</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="pure-button" href="javascript:playSound(2,0)">2</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="pure-button" href="javascript:playSound(3,0)">3</a>
-                        </li>
+                        <li class="nav-item"><a class="pure-button" href="javascript:playSound(7,0)">7</a></li>
+                        <li class="nav-item"><a class="pure-button" href="javascript:playSound(8,0)">8</a></li>
+                        <li class="nav-item"><a class="pure-button" href="javascript:playSound(9,0)">9</a></li>
                     </ul>
                     <ul class="nav-list">
-                        <li class="nav-item">
-                            <a class="pure-button" href="javascript:playSound(0,0)">0</a>
-                        </li>
+                        <li class="nav-item"><a class="pure-button" href="javascript:playSound(0,0)">0</a></li>
                     </ul>
                     <ul class="nav-list">
-                        <li class="nav-item">
-                            <a class="pure-button" href="javascript:playSound(10,0)">Achtung (*)</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="pure-button" href="javascript:playSound(11,0)">Trennung (/)</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="pure-button" href="javascript:playSound(12,0)">Ende (+)</a>
-                        </li>
+                        <li class="nav-item"><a class="pure-button" href="javascript:playSound(10,0)">Achtung (*)</a></li>
+                        <li class="nav-item"><a class="pure-button" href="javascript:playSound(11,0)">Trennung (/)</a></li>
+                        <li class="nav-item"><a class="pure-button" href="javascript:playSound(12,0)">Ende (+)</a></li>
                     </ul>
                 </nav>
-                <p>keyboard:</p>
+                <p>Live Keyboard Input:</p>
                 <input id="keyboard">
             </div>
         </div>
 
-        <div class="content pure-u-1 pure-u-med-3-4">
-            <div>
-                <div class="posts">
-                    <h1 class="content-subhead">Program</h1>
-                    <h2><b>BUG:</b> Reload after every use.</h2>
-                    <form class="pure-form pure-form-stacked">
-                        <fieldset>
-
-                            <label for="call">Call</label>
-                            <input id="call" type="text" onclick="this.value=''" value="271">
-
-                            <label for="body">Message</label>
-                            <textarea rows="6" cols="80" name="body" id="body" onclick="this.value=''">846 846 20 20 83167 83167 14528 14528 30778 30778 13436 13436 50234 50234 67256 67256 15654 15654 27414 27414 15837 15837 75251 75251 51820 51820 37982 37982 64162 64162 18385 18385 90381 90381 77942 77942 12692 12692 22897 22897 69231 69231 14881 14881 846 846 20 20 00000</textarea>
-                            <button type="submit" class="button-xlarge pure-button pure-button-primary">Play the message</button>
-                        </fieldset>
-                    </form>
-                </div>
-
-                <div class="footer">
-                    <div class="pure-menu pure-menu-open">
-                        <ul>
-                            <li>With love, tom|hetmer|cz 2014-02-24</li>
-							<li>Maciej Hunia's Birthday 2014-02-25</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
+        <div class="footer">
+            <p>Original by tom|hetmer|cz 2014. Rebuilt by Jules.</p>
         </div>
     </div>
 
 </body>
-
 </html>
