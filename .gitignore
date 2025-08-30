@@ -1,0 +1,8 @@
+# Ignore bundler cache and local gems
+vendor/bundle
+
+# Ignore Jekyll build output
+_site/
+
+# Ignore other bundler files
+.bundle/

@@ -1,0 +1,17 @@
+# The title of your site
+title: Stasi Speech Machine
+
+# A short description of your site
+description: A number station simulator and cipher tool.
+
+# The theme for your site
+remote_theme: pages-themes/hacker
+
+# The URL of your site (important for SEO)
+# url: "https://example.com"
+# Leave blank for local testing, update when deploying
+url: ""
+
+# Add the jekyll-remote-theme plugin
+plugins:
+  - jekyll-remote-theme

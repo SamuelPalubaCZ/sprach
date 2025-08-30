@@ -14,19 +14,19 @@ function init() {
 	}
 	bufferLoader = new BufferLoader(
 		context, [
-			'./sounds/0.wav',
-			'./sounds/1.wav',
-			'./sounds/2.wav',
-			'./sounds/3.wav',
-			'./sounds/4.wav',
-			'./sounds/5.wav',
-			'./sounds/6.wav',
-			'./sounds/7.wav',
-			'./sounds/8.wav',
-			'./sounds/9.wav',
-			'./sounds/achtung.wav',
-			'./sounds/trennung.wav',
-			'./sounds/ende.wav',
+			'/assets/sounds/0.wav',
+			'/assets/sounds/1.wav',
+			'/assets/sounds/2.wav',
+			'/assets/sounds/3.wav',
+			'/assets/sounds/4.wav',
+			'/assets/sounds/5.wav',
+			'/assets/sounds/6.wav',
+			'/assets/sounds/7.wav',
+			'/assets/sounds/8.wav',
+			'/assets/sounds/9.wav',
+			'/assets/sounds/achtung.wav',
+			'/assets/sounds/trennung.wav',
+			'/assets/sounds/ende.wav',
 		],
 		finishedLoading
 	);
@@ -53,7 +53,7 @@ function playSound(key, time) {
 function finishedLoading(returnedBuffer) {
 	window.sounds = returnedBuffer;
 }
-window.onload = function () {
+window.addEventListener('load', function () {
 	init();
 	document.getElementById('speech-form').onsubmit = function (e) {
 		e.preventDefault();
@@ -68,7 +68,7 @@ window.onload = function () {
     document.getElementById('decrypt-button').addEventListener('click', decryptText);
 	document.getElementById('copy-to-body-button').addEventListener('click', copyToBody);
 	document.getElementById('copy-to-clipboard-button').addEventListener('click', copyToClipboard);
-}
+});
 
 async function generateAudio() {
     // Read all controls
