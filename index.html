@@ -215,34 +215,37 @@
                         Manual Tones
                     </h2>
                     <p class="section-description">Manual playback of audio tones for testing</p>
+                    <div class="safari-notice" style="background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; padding: 10px; margin: 10px 0; font-size: 0.9em;">
+                        <strong>⚠️ Safari Users:</strong> Click anywhere on the page first to enable audio playback, then click the number buttons.
+                    </div>
                 </div>
                 
                 <nav class="nav">
                     <div class="keypad-grid">
                         <div class="keypad-row">
-                            <button class="pure-button keypad-button" onclick="playSound(1,0)">1</button>
-                            <button class="pure-button keypad-button" onclick="playSound(2,0)">2</button>
-                            <button class="pure-button keypad-button" onclick="playSound(3,0)">3</button>
-                            <button class="pure-button keypad-button" onclick="playSound(4,0)">4</button>
-                            <button class="pure-button keypad-button" onclick="playSound(5,0)">5</button>
+                            <button class="pure-button keypad-button" onclick="playSound(1,0)" type="button">1</button>
+                            <button class="pure-button keypad-button" onclick="playSound(2,0)" type="button">2</button>
+                            <button class="pure-button keypad-button" onclick="playSound(3,0)" type="button">3</button>
+                            <button class="pure-button keypad-button" onclick="playSound(4,0)" type="button">4</button>
+                            <button class="pure-button keypad-button" onclick="playSound(5,0)" type="button">5</button>
                         </div>
                         <div class="keypad-row">
-                            <button class="pure-button keypad-button" onclick="playSound(6,0)">6</button>
-                            <button class="pure-button keypad-button" onclick="playSound(7,0)">7</button>
-                            <button class="pure-button keypad-button" onclick="playSound(8,0)">8</button>
-                            <button class="pure-button keypad-button" onclick="playSound(9,0)">9</button>
-                            <button class="pure-button keypad-button" onclick="playSound(0,0)">0</button>
+                            <button class="pure-button keypad-button" onclick="playSound(6,0)" type="button">6</button>
+                            <button class="pure-button keypad-button" onclick="playSound(7,0)" type="button">7</button>
+                            <button class="pure-button keypad-button" onclick="playSound(8,0)" type="button">8</button>
+                            <button class="pure-button keypad-button" onclick="playSound(9,0)" type="button">9</button>
+                            <button class="pure-button keypad-button" onclick="playSound(0,0)" type="button">0</button>
                         </div>
                         <div class="keypad-row special-keys">
-                            <button class="pure-button keypad-button special" onclick="playSound(10,0)">
+                            <button class="pure-button keypad-button special" onclick="playSound(10,0)" type="button">
                                 <span class="icon">⚠️</span>
                                 Achtung (*)
                             </button>
-                            <button class="pure-button keypad-button special" onclick="playSound(11,0)">
+                            <button class="pure-button keypad-button special" onclick="playSound(11,0)" type="button">
                                 <span class="icon">⏸️</span>
                                 Trennung (/)
                             </button>
-                            <button class="pure-button keypad-button special" onclick="playSound(12,0)">
+                            <button class="pure-button keypad-button special" onclick="playSound(12,0)" type="button">
                                 <span class="icon">⏹️</span>
                                 Ende (+)
                             </button>

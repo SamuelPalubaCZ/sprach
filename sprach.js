@@ -6,12 +6,24 @@ var bufferLoader;
 
 function init() {
 	try {
-		// Fix up for prefixing
+		// Fix up for prefixing - Safari specific
 		window.AudioContext = window.AudioContext || window.webkitAudioContext;
-		context = new AudioContext();
+		context = new (window.AudioContext || window.webkitAudioContext)();
+		
+		// Safari specific: resume audio context on user interaction
+		if (context.state === 'suspended') {
+			document.addEventListener('click', function() {
+				context.resume();
+			}, { once: true });
+		}
+		
+		console.log('Audio context initialized:', context.state);
 	} catch (e) {
+		console.error('Web Audio API error:', e);
 		alert('Web Audio API is not supported in this browser');
+		return false;
 	}
+	
 	bufferLoader = new BufferLoader(
 		context, [
 			'./sounds/0.wav',
@@ -31,9 +43,25 @@ function init() {
 		finishedLoading
 	);
 	bufferLoader.load();
+	return true;
 }
 
 function playSound(key, time) {
+	// Safari fix: ensure audio context is resumed
+	if (context && context.state === 'suspended') {
+		context.resume().then(() => {
+			console.log('Audio context resumed');
+			playSoundInternal(key, time);
+		}).catch(err => {
+			console.error('Failed to resume audio context:', err);
+		});
+		return;
+	}
+	
+	playSoundInternal(key, time);
+}
+
+function playSoundInternal(key, time) {
 	if (key === ' ') key = 'BADBEEF';
 
 	if (isNaN(key)) {
@@ -43,19 +71,50 @@ function playSound(key, time) {
 	}
 
 	if (!isNaN(key) && key >= 0 && key <= 12) {
-		var source = context.createBufferSource();
-		source.buffer = window.sounds[key];
-		source.connect(context.destination);
-		source.start ? source.start(time) : source.noteOn(time);
+		try {
+			if (!context) {
+				console.error('Audio context not initialized');
+				return;
+			}
+			
+			if (!window.sounds || !window.sounds[key]) {
+				console.error('Sound not loaded for key:', key);
+				return;
+			}
+			
+			var source = context.createBufferSource();
+			source.buffer = window.sounds[key];
+			source.connect(context.destination);
+			
+			// Safari fix: use both start methods
+			if (source.start) {
+				source.start(time || 0);
+			} else if (source.noteOn) {
+				source.noteOn(time || 0);
+			} else {
+				console.error('No start method available on AudioBufferSourceNode');
+			}
+			
+			console.log('Playing sound:', key);
+		} catch (error) {
+			console.error('Error playing sound:', key, error);
+		}
+	} else {
+		console.error('Invalid sound key:', key);
 	}
 }
 
 function finishedLoading(returnedBuffer) {
 	window.sounds = returnedBuffer;
+	console.log('Sounds loaded:', returnedBuffer.length);
 }
 
 window.onload = function () {
-	init();
+	// Initialize audio first
+	if (!init()) {
+		console.error('Failed to initialize audio');
+		return;
+	}
 	
 	// Kontrola existence formuláře
 	const speechForm = document.getElementById('speech-form');
@@ -110,6 +169,17 @@ window.onload = function () {
 	
 	// Přidání animací a efektů
 	setupAnimations();
+	
+	// Safari fix: add click handler to resume audio context
+	document.addEventListener('click', function() {
+		if (context && context.state === 'suspended') {
+			context.resume().then(() => {
+				console.log('Audio context resumed on click');
+			}).catch(err => {
+				console.error('Failed to resume audio context on click:', err);
+			});
+		}
+	});
 }
 
 // Nové funkce pro lepší UX

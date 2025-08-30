@@ -44,11 +44,25 @@
             border-radius: 4px;
             background: #e9ecef;
         }
+        .browser-info {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 20px 0;
+        }
     </style>
 </head>
 <body>
     <h1>🔊 Keypad Test - Sprach Machine</h1>
     <p>Test the functionality of the numeric keypad and audio playback.</p>
+    
+    <div class="browser-info">
+        <h3>Browser Information</h3>
+        <p><strong>User Agent:</strong> <span id="user-agent"></span></p>
+        <p><strong>Web Audio API:</strong> <span id="audio-api-status"></span></p>
+        <p><strong>Audio Context State:</strong> <span id="audio-context-state">Not initialized</span></p>
+    </div>
     
     <div class="status" id="status">Ready to test audio playback</div>
     
@@ -78,16 +92,55 @@
         let sounds = {};
         let testResults = [];
         
+        // Display browser information
+        function displayBrowserInfo() {
+            document.getElementById('user-agent').textContent = navigator.userAgent;
+            
+            if (window.AudioContext || window.webkitAudioContext) {
+                document.getElementById('audio-api-status').textContent = 'Supported';
+            } else {
+                document.getElementById('audio-api-status').textContent = 'Not Supported';
+            }
+        }
+        
         // Initialize Web Audio API
         function initAudio() {
             try {
+                // Safari specific fixes
                 window.AudioContext = window.AudioContext || window.webkitAudioContext;
-                context = new AudioContext();
+                
+                if (!window.AudioContext) {
+                    throw new Error('Web Audio API not supported');
+                }
+                
+                context = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // Safari fix: resume audio context on user interaction
+                if (context.state === 'suspended') {
+                    document.addEventListener('click', function() {
+                        context.resume().then(() => {
+                            console.log('Audio context resumed on click');
+                            updateAudioContextState();
+                        }).catch(err => {
+                            console.error('Failed to resume audio context:', err);
+                        });
+                    }, { once: true });
+                }
+                
+                updateAudioContextState();
                 document.getElementById('status').textContent = 'Audio context initialized successfully';
                 return true;
             } catch (e) {
                 document.getElementById('status').textContent = 'Error initializing audio: ' + e.message;
+                console.error('Audio initialization error:', e);
                 return false;
+            }
+        }
+        
+        // Update audio context state display
+        function updateAudioContextState() {
+            if (context) {
+                document.getElementById('audio-context-state').textContent = context.state;
             }
         }
         
@@ -114,6 +167,10 @@
             for (let i = 0; i < soundFiles.length; i++) {
                 try {
                     const response = await fetch(soundFiles[i]);
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    
                     const arrayBuffer = await response.arrayBuffer();
                     const audioBuffer = await context.decodeAudioData(arrayBuffer);
                     sounds[i] = audioBuffer;
@@ -139,19 +196,47 @@
             }
             
             try {
+                // Safari fix: ensure audio context is resumed
+                if (context.state === 'suspended') {
+                    context.resume().then(() => {
+                        console.log('Audio context resumed');
+                        updateAudioContextState();
+                        playSoundInternal(key);
+                    }).catch(err => {
+                        console.error('Failed to resume audio context:', err);
+                        addResult(`❌ Failed to resume audio context: ${err.message}`);
+                    });
+                    return;
+                }
+                
+                playSoundInternal(key);
+            } catch (error) {
+                addResult(`❌ Error playing sound ${key}: ${error.message}`);
+            }
+        }
+        
+        // Internal sound playback function
+        function playSoundInternal(key) {
+            try {
                 const source = context.createBufferSource();
                 source.buffer = sounds[key];
                 source.connect(context.destination);
-                source.start(0);
+                
+                // Safari fix: use both start methods
+                if (source.start) {
+                    source.start(0);
+                } else if (source.noteOn) {
+                    source.noteOn(0);
+                } else {
+                    throw new Error('No start method available');
+                }
                 
                 addResult(`✅ Played sound ${key} successfully`);
                 
-                // Resume audio context if suspended
-                if (context.state === 'suspended') {
-                    context.resume();
-                }
+                // Update state
+                updateAudioContextState();
             } catch (error) {
-                addResult(`❌ Error playing sound ${key}: ${error.message}`);
+                addResult(`❌ Error in playSoundInternal ${key}: ${error.message}`);
             }
         }
         
@@ -170,6 +255,8 @@
         
         // Initialize when page loads
         window.addEventListener('load', async () => {
+            displayBrowserInfo();
+            
             if (initAudio()) {
                 await loadSounds();
             }
@@ -178,7 +265,24 @@
         // Handle user interaction to resume audio context
         document.addEventListener('click', () => {
             if (context && context.state === 'suspended') {
-                context.resume();
+                context.resume().then(() => {
+                    console.log('Audio context resumed on click');
+                    updateAudioContextState();
+                }).catch(err => {
+                    console.error('Failed to resume audio context on click:', err);
+                });
+            }
+        });
+        
+        // Handle visibility change (Safari specific)
+        document.addEventListener('visibilitychange', () => {
+            if (context && context.state === 'suspended') {
+                context.resume().then(() => {
+                    console.log('Audio context resumed on visibility change');
+                    updateAudioContextState();
+                }).catch(err => {
+                    console.error('Failed to resume audio context on visibility change:', err);
+                });
             }
         });
     </script>
