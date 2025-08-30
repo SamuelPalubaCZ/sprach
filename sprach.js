@@ -64,10 +64,13 @@ window.onload = function () {
 		key = String.fromCharCode(e.keyCode);
 		playSound(key, 0);
 	}
+	document.getElementById('encrypt-button').addEventListener('click', encryptText);
+    document.getElementById('decrypt-button').addEventListener('click', decryptText);
+    setupAudioRecording();
 }
 
 function sendMessage() {
-
+	var offset = context.currentTime;
 	var callRepeat = 4;
 	var delay = 4;
 	var speed = 0.8;
@@ -77,18 +80,91 @@ function sendMessage() {
 	for (var i = 0; i < callRepeat; i++) {
 
 		for (var j = 0; j < call.length; j++) {
-			playSound(call[j], speed * j + (delay * i));
+			playSound(call[j], offset + speed * j + (delay * i));
 		}
 
 	}
 
-	playSound(10, delay * callRepeat);
+	playSound(10, offset + delay * callRepeat);
 
 	body = document.getElementById("body").value;
 
 	for (var k = 0; k < body.length; k++) {
-		playSound(body[k], speed * k + (delay * callRepeat) + 2);
+		playSound(body[k], offset + speed * k + (delay * callRepeat) + 2);
 	}
 
-	playSound(12, speed * k + (delay * callRepeat) + 3);
+	playSound(12, offset + speed * body.length + (delay * callRepeat) + 3);
+}
+
+function xorCipher(text, key) {
+    let result = '';
+    for (let i = 0; i < text.length; i++) {
+        result += String.fromCharCode(text.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+    }
+    return result;
+}
+
+function encryptText() {
+    const plainText = document.getElementById('plain-text').value;
+    const key = document.getElementById('cipher-key').value;
+    if (!key) {
+        alert('Please enter a cipher key.');
+        return;
+    }
+    const encrypted = xorCipher(plainText, key);
+    // To make it "speakable", we convert to char codes
+    const speakableEncrypted = encrypted.split('').map(c => c.charCodeAt(0)).join(' ');
+    document.getElementById('cipher-text').value = speakableEncrypted;
+}
+
+function decryptText() {
+    const cipherText = document.getElementById('cipher-text').value;
+    const key = document.getElementById('cipher-key').value;
+    if (!key) {
+        alert('Please enter a cipher key.');
+        return;
+    }
+    // Convert from char codes back to string
+    const encrypted = cipherText.split(' ').map(c => String.fromCharCode(parseInt(c, 10))).join('');
+    const decrypted = xorCipher(encrypted, key);
+    document.getElementById('plain-text').value = decrypted;
+}
+
+function setupAudioRecording() {
+    const startButton = document.getElementById('start-record-button');
+    const stopButton = document.getElementById('stop-record-button');
+    const audioPlayback = document.getElementById('audio-playback');
+    let mediaRecorder;
+    let audioChunks = [];
+
+    async function startRecording() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            mediaRecorder.ondataavailable = event => {
+                audioChunks.push(event.data);
+            };
+            mediaRecorder.onstop = () => {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                const audioUrl = URL.createObjectURL(audioBlob);
+                audioPlayback.src = audioUrl;
+                audioChunks = [];
+            };
+            mediaRecorder.start();
+            startButton.disabled = true;
+            stopButton.disabled = false;
+        } catch (err) {
+            console.error('Error accessing microphone:', err);
+            alert('Could not access microphone. Please ensure you have given permission.');
+        }
+    }
+
+    function stopRecording() {
+        mediaRecorder.stop();
+        startButton.disabled = false;
+        stopButton.disabled = true;
+    }
+
+    startButton.addEventListener('click', startRecording);
+    stopButton.addEventListener('click', stopRecording);
 }
