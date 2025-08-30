@@ -12,6 +12,29 @@ remote_theme: pages-themes/hacker
 # Leave blank for local testing, update when deploying
 url: ""
 
-# Add the jekyll-remote-theme plugin
+# Jekyll plugins for GitHub Pages
 plugins:
   - jekyll-remote-theme
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
+
+# GitHub Pages settings
+github:
+  is_project_page: true
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+
+# Exclude files from processing
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor
+  - .sass-cache
+  - .jekyll-cache

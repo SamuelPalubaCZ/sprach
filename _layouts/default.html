@@ -10,15 +10,19 @@
   </head>
 
   <body>
-    <div class="container-lg px-3 my-5 markdown-body">
-      <h1><a href="{{ '/' | relative_url }}">{{ site.title | default: site.github.repository_name }}</a></h1>
+    <header class="page-header" role="banner">
+      <h1 class="project-name">{{ site.title | default: site.github.repository_name }}</h1>
+      <h2 class="project-tagline">{{ site.description | default: site.github.project_tagline }}</h2>
       
-      <nav>
-        <a href="{{ '/' | relative_url }}">Home</a> |
-        <a href="{{ '/transmitter.html' | relative_url }}">Transmitter</a> |
-        <a href="{{ '/cipher.html' | relative_url }}">Cipher</a> |
-        <a href="{{ '/manual_tones.html' | relative_url }}">Manual Tones</a>
+      <nav class="main-nav">
+        <a href="{{ '/' | relative_url }}" class="btn">Home</a>
+        <a href="{{ '/transmitter' | relative_url }}" class="btn">Transmitter</a>
+        <a href="{{ '/cipher' | relative_url }}" class="btn">Cipher</a>
+        <a href="{{ '/manual_tones' | relative_url }}" class="btn">Manual Tones</a>
       </nav>
+    </header>
+
+    <main id="content" class="main-content" role="main">
         
       {% if site.show_downloads or site.github.repository_url %}
       <p>
@@ -32,12 +36,14 @@
 
       {{ content }}
 
-      {% if site.github.private != true and site.github.license %}
-      <div class="footer border-top border-gray-light mt-5 pt-3 text-right text-gray">
-        This site is open source. {% github_edit_link "Improve this page" %}.
-      </div>
-      {% endif %}
-    </div>
+      <footer class="site-footer">
+        {% if site.github.private != true and site.github.license %}
+        <span class="site-footer-credits">This site is open source. {% github_edit_link "Improve this page" %}.</span>
+        {% endif %}
+        <span class="site-footer-owner">{{ site.title | default: site.github.repository_name }} is maintained by <a href="{{ site.github.owner_url }}">{{ site.github.owner_name }}</a>.</span>
+      </footer>
+    </main>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/4.1.0/anchor.min.js" integrity="sha256-lZaRhKri35AyJSypXXs4o6OPFTbTmUoltBbDCbdzegg=" crossorigin="anonymous"></script>
     <script>anchors.add();</script>
     <script src="{{ '/assets/js/sprach.js' | relative_url }}"></script>

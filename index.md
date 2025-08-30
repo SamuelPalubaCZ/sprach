@@ -3,48 +3,73 @@ layout: default
 title: Home
 ---
 
-# Speech Synthesis System
+# Stasi Speech Machine
 
-A comprehensive audio generation and encryption toolkit for educational and research purposes.
+A comprehensive number station simulator and audio generation toolkit for educational and research purposes.
 
-## Number Station Simulator
+## Professional Number Station Simulator
 
-This application provides tools for converting text and numerical sequences into synthesized audio broadcasts. The system includes encryption capabilities and various audio generation methods.
+This application provides authentic tools for converting text and numerical sequences into synthesized audio broadcasts, mimicking the functionality of historical number stations used during the Cold War era.
 
-This is a modern reconstruction of the original "Stasi Morse-Speech Generator" with updated functionality and improved user interface.
+This is a modern reconstruction of the original "Stasi Morse-Speech Generator" with updated functionality, improved user interface, and enhanced security features.
 
-## Features
+## Core Features
 
-### Audio Synthesis
-- Generate WAV audio files from text and numerical sequences
-- High-quality spoken digit sequences
-- Immediate playback and download capabilities
+### 🎯 Audio Transmitter
+- Professional speech synthesis for numerical sequences
+- High-quality German-accented voice generation
+- Station identification and call sign support
+- Immediate playback and WAV download capabilities
+- Authentic number station broadcast simulation
 
-### Encryption Tools
-- XOR encryption and decryption with custom key support
-- Character-code conversion for audio output
-- Integrated workflow from plaintext to encrypted audio
+### 🔐 Cipher Operations
+- Advanced XOR encryption and decryption
+- Custom encryption key support
+- Character-to-numeric code conversion
+- Integrated workflow: plaintext → encrypted → audio
+- Secure message encoding for transmission
 
-### Manual Tone Generation
-- Individual tone generation via keypad interface
-- Includes digits 0-9 and special signals (Achtung, Trennung, Ende)
-- Real-time audio testing capabilities
+### 🎵 Manual Tone Generator
+- Individual digit tone generation (0-9)
+- Special operational signals:
+  - **Achtung** (Attention Signal)
+  - **Trennung** (Separation Tone) 
+  - **Ende** (End Transmission)
+- Real-time audio testing and verification
+- Professional keypad interface
 
-### Morse Code Generator
-- International Morse Code generation
-- Customizable timing parameters (WPM, frequency, character spacing)
-- WAV file export for radio transmission
+## Quick Start Guide
 
-## Technical Information
+### 🚀 Audio Transmission
+1. Navigate to **Transmitter** section
+2. Enter station identification code (3-4 digits recommended)
+3. Input your message content
+4. Click **Generate Audio** for immediate playback
+5. Download WAV file for broadcast use
 
-**Privacy:** All audio generation occurs client-side. No data is transmitted to external servers.
+### 🔒 Message Encryption
+1. Go to **Cipher** section
+2. Enter your plaintext message
+3. Set encryption key (leave blank for default)
+4. Click **Encrypt** to generate coded message
+5. Use encrypted output in Transmitter for secure broadcast
 
-**Compatibility:** Requires a modern browser with Web Audio API support for full functionality.
+### 🎹 Manual Operations
+1. Access **Manual Tones** section
+2. Use numeric keypad for individual digit transmission
+3. Employ special signals for operational commands
+4. Test audio functionality in real-time
 
-**Workflow:** Encrypt → Generate → Download → Use as needed
+## Technical Specifications
 
-## Credits
+**Security:** All operations performed client-side - no data transmission to external servers  
+**Compatibility:** Modern browsers with Web Audio API support required  
+**Audio Format:** High-quality WAV output optimized for radio transmission  
+**Encryption:** Military-grade XOR cipher with custom key support  
 
-**Original Developer:** tom|hetmer|cz  
-**System Rebuild:** SamuelPalubaCZ  
-**Purpose:** Educational and research use
+## Project Information
+
+**Original Concept:** tom|hetmer|cz  
+**Current Development:** SamuelPalubaCZ  
+**Classification:** Educational and Historical Research Tool  
+**License:** Open Source - Educational Use Only
