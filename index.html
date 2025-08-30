@@ -1,264 +1,117 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sprach-Morse Numbers Station Simulator</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Stasi Speech Machine</title>
+    <link rel="stylesheet" href="css/normal-look.css">
+    <script src="buffer-loader.js"></script>
+    <script src="sprach.js"></script>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Sprach-Morse Numbers Station Simulator</h1>
-            <div class="header-controls">
-                <div class="led-indicator" id="transmissionLED"></div>
+
+    <div id="layout">
+        <div class="header">
+            <h1 class="brand-title">Sprach Machine</h1>
+            <h2 class="brand-tagline">Number Station Simulator</h2>
+        </div>
+
+        <div class="content">
+            <div class="program-section">
+                <h2 class="content-subhead">Message Transmitter</h2>
+                <form id="speech-form" class="pure-form pure-form-stacked" onsubmit="return false;">
+                    <fieldset>
+                        <label for="call">Call Sign</label>
+                        <input id="call" type="text" value="271">
+
+                        <label for="body">Message Body (Numbers only)</label>
+                        <textarea rows="6" name="body" id="body">846 846 20 20 83167 83167 14528 14528 30778 30778 13436 13436 50234 50234 67256 67256 15654 15654 27414 27414 15837 15837 75251 75251 51820 51820 37982 37982 64162 64162 18385 18385 90381 90381 77942 77942 12692 12692 22897 22897 69231 69231 14881 14881 846 846 20 20 00000</textarea>
+                        <p style="font-size: 0.9em; color: #666;">Use a space for a short pause, and `_` for a long pause. Special characters: `* / + #`.</p>
+
+                        <div class="broadcast-options">
+                            <div class="option-group">
+                                <label for="callsign-reps">Callsign Reps:</label>
+                                <input type="number" id="callsign-reps" value="2" min="1" max="10">
+                            </div>
+                            <div class="option-group">
+                                <label for="achtung-signal"><input type="checkbox" id="achtung-signal" checked> Play 'Achtung'</label>
+                            </div>
+                            <div class="option-group">
+                                <label for="auto-pause"><input type="checkbox" id="auto-pause" checked> Auto-pause</label>
+                                <input type="number" id="auto-pause-duration" value="100" min="0" step="50" style="width: 70px; margin-left: 5px;"> ms
+                            </div>
+                        </div>
+
+                        <div class="audio-controls">
+                            <div class="control-group">
+                                <label for="speed-control">Speed (0.5-2.0):</label>
+                                <input type="number" id="speed-control" min="0.5" max="2.0" value="1.0" step="0.1">
+                            </div>
+                            <div class="control-group">
+                                <label for="pitch-control">Pitch (0.5-2.0):</label>
+                                <input type="number" id="pitch-control" min="0.5" max="2.0" value="1.0" step="0.1">
+                            </div>
+                        </div>
+
+                        <button type="submit" id="generate-button" class="button-xlarge pure-button">Generate Audio File</button>
+                    </fieldset>
+                </form>
+                <div id="audio-output" style="display: none; margin-top: 1em;">
+                    <h3 style="margin-bottom: 0.5em;">Generated Audio:</h3>
+                    <audio id="audio-playback" controls style="width: 100%;"></audio>
+                    <a id="download-link" href="#" download="message.wav" class="pure-button" style="margin-top: 0.5em; display: block; text-align: center;">Download WAV file</a>
+                </div>
             </div>
-        </header>
 
-        <main class="panels">
-            <!-- Message Composer Panel -->
-            <section class="panel" id="composerPanel">
-                <h2>Message Composer</h2>
-                <div class="form-group">
-                    <label for="plaintext">Plaintext (A-Z, 0-9):</label>
-                    <textarea id="plaintext" placeholder="Enter your message here..."></textarea>
-                </div>
-                
-                <div class="cipher-options">
-                    <div class="form-group">
-                        <label>Cipher Method:</label>
-                        <div class="radio-group">
-                            <label><input type="radio" name="cipher" value="a1z26" checked> A1Z26</label>
-                            <label><input type="radio" name="cipher" value="checkerboard"> Straddling Checkerboard</label>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label><input type="checkbox" id="useOTP"> Use One-Time Pad</label>
-                        <div id="otpKeyGroup" class="form-group" style="display: none;">
-                            <label for="otpKey">OTP Key (digits):</label>
-                            <input type="text" id="otpKey" placeholder="Auto-generated or enter key...">
-                            <button id="generateOTP" class="btn-small">Generate</button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="output-section">
-                    <div class="form-group">
-                        <label>Encoded Groups:</label>
-                        <div id="encodedOutput" class="output-display"></div>
-                    </div>
-                    <div class="form-group">
-                        <label>Group Count:</label>
-                        <div id="groupCount" class="count-display">0</div>
-                    </div>
-                </div>
-                
-                <button id="encodeMessage" class="btn-primary">Encode Message</button>
-            </section>
+            <div class="encryption-section">
+                <h2 class="content-subhead">Cipher Tool</h2>
+                <form class="pure-form pure-form-stacked" onsubmit="return false;">
+                    <fieldset>
+                        <label for="plain-text">Plaintext</label>
+                        <textarea id="plain-text" rows="4"></textarea>
 
-            <!-- Cipher Tools Panel -->
-            <section class="panel" id="cipherPanel">
-                <h2>Cipher Tools</h2>
-                
-                <!-- XOR Tool -->
-                <div class="tool-section">
-                    <h3>XOR Encrypt/Decrypt</h3>
-                    <div class="form-group">
-                        <label>Mode:</label>
-                        <div class="radio-group">
-                            <label><input type="radio" name="xorMode" value="ascii" checked> ASCII</label>
-                            <label><input type="radio" name="xorMode" value="hex"> HEX</label>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="xorInput">Input:</label>
-                        <textarea id="xorInput" placeholder="Enter text or hex..."></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="xorKey">Key:</label>
-                        <input type="text" id="xorKey" placeholder="Enter key...">
-                    </div>
-                    <div class="form-group">
-                        <label>Output:</label>
-                        <div id="xorOutput" class="output-display"></div>
-                    </div>
-                    <button id="xorProcess" class="btn-secondary">Process XOR</button>
-                </div>
-                
-                <!-- OTP Tool -->
-                <div class="tool-section">
-                    <h3>OTP Calculator</h3>
-                    <div class="form-group">
-                        <label for="otpPlaintext">Plaintext (digits):</label>
-                        <input type="text" id="otpPlaintext" placeholder="Enter digits...">
-                    </div>
-                    <div class="form-group">
-                        <label for="otpKeyCalc">Key (digits):</label>
-                        <input type="text" id="otpKeyCalc" placeholder="Enter key digits...">
-                    </div>
-                    <div class="form-group">
-                        <label>Result:</label>
-                        <div id="otpResult" class="output-display"></div>
-                    </div>
-                    <div class="button-group">
-                        <button id="otpEncrypt" class="btn-secondary">Encrypt</button>
-                        <button id="otpDecrypt" class="btn-secondary">Decrypt</button>
-                    </div>
-                </div>
-            </section>
+                        <label for="cipher-key">Cipher Key</label>
+                        <input type="text" id="cipher-key" value="STASI">
 
-            <!-- Voice & Morse Settings Panel -->
-            <section class="panel" id="settingsPanel">
-                <h2>Voice & Morse Settings</h2>
-                
-                <div class="form-group">
-                    <label>Transmission Mode:</label>
-                    <div class="radio-group">
-                        <label><input type="radio" name="mode" value="voice" checked> Voice</label>
-                        <label><input type="radio" name="mode" value="morse"> Morse (CW)</label>
-                    </div>
-                </div>
-                
-                <!-- Voice Settings -->
-                <div id="voiceSettings" class="settings-section">
-                    <h3>Voice Settings</h3>
-                    <div class="form-group">
-                            <label for="voicePack">Voice Pack:</label>
-                            <select id="voicePack">
-                                <option value="default">Default Voice Pack</option>
-                            </select>
-                        </div>
-                    
-                    <div class="timing-controls">
-                        <div class="form-group">
-                            <label for="digitGap">Digit Gap (ms): <span id="digitGapValue">800</span></label>
-                            <input type="range" id="digitGap" min="300" max="2000" value="800">
-                        </div>
-                        <div class="form-group">
-                            <label for="groupGap">Group Gap (ms): <span id="groupGapValue">1500</span></label>
-                            <input type="range" id="groupGap" min="500" max="3000" value="1500">
-                        </div>
-                        <div class="form-group">
-                            <label for="preludeGap">Prelude Gap (ms): <span id="preludeGapValue">2000</span></label>
-                            <input type="range" id="preludeGap" min="1000" max="5000" value="2000">
-                        </div>
-                        <div class="form-group">
-                            <label for="voiceSpeed">Playback Speed: <span id="voiceSpeedValue">100%</span></label>
-                            <input type="range" id="voiceSpeed" min="50" max="200" value="100">
-                        </div>
-                        <div class="form-group">
-                            <label for="voicePitch">Pitch Shift: <span id="voicePitchValue">0 st</span></label>
-                            <input type="range" id="voicePitch" min="-12" max="12" value="0">
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Morse Settings -->
-                <div id="morseSettings" class="settings-section" style="display: none;">
-                    <h3>Morse (CW) Settings</h3>
-                    <div class="form-group">
-                        <label for="morseFreq">Frequency (Hz): <span id="morseFreqValue">800</span></label>
-                        <input type="range" id="morseFreq" min="400" max="1200" value="800">
-                    </div>
-                    <div class="form-group">
-                        <label for="morseWPM">WPM: <span id="morseWPMValue">20</span></label>
-                        <input type="range" id="morseWPM" min="5" max="40" value="20">
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label><input type="checkbox" id="repeatGroups"> Repeat Each Group</label>
-                </div>
-                
-                <div class="form-group">
-                    <label><input type="checkbox" id="addNoise"> Add Static Noise</label>
-                    <div id="noiseLevel" class="form-group" style="display: none;">
-                        <label for="noiseVolume">Noise Level: <span id="noiseVolumeValue">0.1</span></label>
-                        <input type="range" id="noiseVolume" min="0" max="0.5" step="0.01" value="0.1">
-                    </div>
-                </div>
-            </section>
+                        <button id="encrypt-button" class="pure-button">Encrypt</button>
+                        <button id="decrypt-button" class="pure-button">Decrypt</button>
 
-            <!-- Manual Dialer Panel -->
-            <section class="panel" id="dialerPanel">
-                <h2>Manual Dialer</h2>
-                <p class="help-text">Live transmission mode - press keys to transmit immediately</p>
-                
-                <div class="keypad">
-                    <button class="key-btn" data-key="1">1</button>
-                    <button class="key-btn" data-key="2">2</button>
-                    <button class="key-btn" data-key="3">3</button>
-                    <button class="key-btn" data-key="4">4</button>
-                    <button class="key-btn" data-key="5">5</button>
-                    <button class="key-btn" data-key="6">6</button>
-                    <button class="key-btn" data-key="7">7</button>
-                    <button class="key-btn" data-key="8">8</button>
-                    <button class="key-btn" data-key="9">9</button>
-                    <button class="key-btn special" data-key="*" title="Achtung">*<br><small>Achtung</small></button>
-                    <button class="key-btn" data-key="0">0</button>
-                    <button class="key-btn special" data-key="/" title="Trennung">/<br><small>Trennung</small></button>
-                    <button class="key-btn special wide" data-key="+" title="Ende">+<br><small>Ende</small></button>
-                </div>
-                
-                <div class="dialer-controls">
-                    <button id="clearQueue" class="btn-secondary">Clear Queue</button>
-                    <div class="queue-display">
-                        <label>Queue:</label>
-                        <div id="dialerQueue"></div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Recorder Panel -->
-            <section class="panel" id="recorderPanel">
-                <h2>Playback & Recording</h2>
-                
-                <div class="transport-controls">
-                    <button id="playTransmission" class="btn-primary">▶ Play Transmission</button>
-                    <button id="stopTransmission" class="btn-secondary" disabled>⏹ Stop</button>
-                </div>
-                
-                <div class="recording-controls">
-                    <button id="startRecording" class="btn-secondary">🔴 Start Recording</button>
-                    <button id="stopRecording" class="btn-secondary" disabled>⏹ Stop Recording</button>
-                    <button id="downloadWAV" class="btn-secondary" disabled>💾 Download WAV</button>
-                </div>
-                
-                <div class="status-display">
-                    <div class="form-group">
-                        <label>Status:</label>
-                        <div id="transmissionStatus">Ready</div>
-                    </div>
-                    <div class="form-group">
-                        <label>Progress:</label>
-                        <div class="progress-bar">
-                            <div id="progressFill" class="progress-fill"></div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </main>
-        
-        <footer>
-            <div id="statusDisplay" class="status info">Ready</div>
-            <p>Sprach-Morse Numbers Station Simulator - Educational Use Only</p>
-            <div class="help-tooltips">
-                <span class="tooltip" title="Achtung: German for 'Attention' - signals start of transmission">ℹ️ Achtung</span>
-                <span class="tooltip" title="Trennung: German for 'Separation' - used as delimiter in transmission">ℹ️ Trennung</span>
-                <span class="tooltip" title="Ende: German for 'End' - signals end of transmission">ℹ️ Ende</span>
-                <span class="tooltip" title="OTP: One-Time Pad encryption - for demonstration only, never reuse keys in real applications">⚠️ OTP Security</span>
+                        <label for="cipher-text">Ciphertext (for decryption)</label>
+                        <textarea id="cipher-text" rows="4"></textarea>
+                        <button id="copy-to-body-button" class="pure-button">Copy to Message Body</button>
+                        <button id="copy-to-clipboard-button" class="pure-button">Copy to Clipboard</button>
+                    </fieldset>
+                </form>
             </div>
-        </footer>
+
+            <div class="keypad-section">
+                <h2 class="content-subhead">Manual Tones</h2>
+                <nav class="nav">
+                    <ul class="nav-list">
+                        <li class="nav-item"><a class="pure-button" href="javascript:playSound(1,0)">1</a></li>
+                        <li class="nav-item"><a class="pure-button" href="javascript:playSound(2,0)">2</a></li>
+                        <li class="nav-item"><a class="pure-button" href="javascript:playSound(3,0)">3</a></li>
+                        <li class="nav-item"><a class="pure-button" href="javascript:playSound(4,0)">4</a></li>
+                        <li class="nav-item"><a class="pure-button" href="javascript:playSound(5,0)">5</a></li>
+                        <li class="nav-item"><a class="pure-button" href="javascript:playSound(6,0)">6</a></li>
+                        <li class="nav-item"><a class="pure-button" href="javascript:playSound(7,0)">7</a></li>
+                        <li class="nav-item"><a class="pure-button" href="javascript:playSound(8,0)">8</a></li>
+                        <li class="nav-item"><a class="pure-button" href="javascript:playSound(9,0)">9</a></li>
+                        <li class="nav-item"><a class="pure-button" href="javascript:playSound(0,0)">0</a></li>
+                    </ul>
+                    <ul class="nav-list">
+                        <li class="nav-item"><a class="pure-button" href="javascript:playSound(10,0)">Achtung (*)</a></li>
+                        <li class="nav-item"><a class="pure-button" href="javascript:playSound(11,0)">Trennung (/)</a></li>
+                        <li class="nav-item"><a class="pure-button" href="javascript:playSound(12,0)">Ende (+)</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Original by tom|hetmer|cz. Rebuilt by SamuelPalubaCZ (<a href="#" title="GitHub profile not provided">GitHub</a>).</p>
+        </div>
     </div>
 
-    <!-- JavaScript Modules -->
-    <script type="module" src="js/encoder.js"></script>
-    <script type="module" src="js/otp.js"></script>
-    <script type="module" src="js/xor.js"></script>
-    <script type="module" src="js/audio.js"></script>
-    <script type="module" src="js/morse.js"></script>
-    <script type="module" src="js/ui.js"></script>
-    <script type="module" src="js/app.js"></script>
 </body>
 </html>
