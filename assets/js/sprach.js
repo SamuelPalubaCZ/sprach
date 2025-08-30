@@ -378,6 +378,83 @@ window.addEventListener('load', function () {
 
     modeVoice.addEventListener('change', toggleModeView);
     modeMorse.addEventListener('change', toggleModeView);
+    
+    // Character counter updates
+    const plaintext = document.getElementById('plaintext');
+    const ciphertext = document.getElementById('ciphertext');
+    
+    if (plaintext) {
+        plaintext.addEventListener('input', updateCharCounters);
+    }
+    if (ciphertext) {
+        ciphertext.addEventListener('input', updateCharCounters);
+    }
+    
+    // Key strength monitoring for cipher page
+    const key = document.getElementById('key');
+    if (key) {
+        key.addEventListener('input', function() {
+            updateKeyStrength(this.value);
+        });
+    }
+    
+    // Manual tone generator controls
+    const volumeSlider = document.getElementById('volume-slider');
+    const durationSlider = document.getElementById('duration-slider');
+    const volumeValue = document.getElementById('volume-value');
+    const durationValue = document.getElementById('duration-value');
+    
+    if (volumeSlider && volumeValue) {
+        volumeSlider.addEventListener('input', function() {
+            volumeValue.textContent = this.value + '%';
+        });
+    }
+    
+    if (durationSlider && durationValue) {
+        durationSlider.addEventListener('input', function() {
+            durationValue.textContent = this.value + 'ms';
+        });
+    }
+    
+    // Speed and pitch controls for transmitter
+    const speedControl = document.getElementById('speed-control');
+    const pitchControl = document.getElementById('pitch-control');
+    const speedValue = document.getElementById('speed-value');
+    const pitchValue = document.getElementById('pitch-value');
+    
+    if (speedControl && speedValue) {
+        speedControl.addEventListener('input', function() {
+            speedValue.textContent = this.value + 'x';
+        });
+    }
+    
+    if (pitchControl && pitchValue) {
+        pitchControl.addEventListener('input', function() {
+            pitchValue.textContent = this.value + 'x';
+        });
+    }
+    
+    // Initialize character counters
+    updateCharCounters();
+    
+    // Transmitter button event listeners
+    const generateBtn = document.getElementById('generate-btn');
+    const playBtn = document.getElementById('play-btn');
+    const stopBtn = document.getElementById('stop-btn');
+    const downloadBtn = document.getElementById('download-btn');
+    
+    if (generateBtn) {
+        generateBtn.addEventListener('click', generateAudio);
+    }
+    if (playBtn) {
+        playBtn.addEventListener('click', playAudio);
+    }
+    if (stopBtn) {
+        stopBtn.addEventListener('click', stopAudio);
+    }
+    if (downloadBtn) {
+        downloadBtn.addEventListener('click', downloadAudio);
+    }
 });
 
 async function generateAudio() {
@@ -607,18 +684,16 @@ function xorCipher(text, key) {
 }
 
 function encryptText() {
-    const plainText = document.getElementById('plain-text').value;
-    const key = document.getElementById('cipher-key').value;
+    const plainText = document.getElementById('plaintext').value;
+    const key = document.getElementById('key').value;
     
     if (!key) {
-        showTerminalMessage('ERROR: CIPHER KEY REQUIRED', 'error');
-        logActivity('ENCRYPTION FAILED: No cipher key provided');
+        logActivity('Encryption failed: No cipher key provided');
         return;
     }
     
     if (!plainText.trim()) {
-        showTerminalMessage('ERROR: NO PLAINTEXT TO ENCRYPT', 'error');
-        logActivity('ENCRYPTION FAILED: No plaintext provided');
+        logActivity('Encryption failed: No plaintext provided');
         return;
     }
     
@@ -626,43 +701,41 @@ function encryptText() {
         const encrypted = xorCipher(plainText, key);
         // To make it "speakable", we convert to char codes
         const speakableEncrypted = encrypted.split('').map(c => c.charCodeAt(0)).join(' ');
-        document.getElementById('cipher-text').value = speakableEncrypted;
+        document.getElementById('ciphertext').value = speakableEncrypted;
         
-        logActivity(`ENCRYPTED ${plainText.length} CHARACTERS WITH ${key.length}-CHAR KEY`);
+        logActivity(`Encrypted ${plainText.length} characters with ${key.length}-character key`);
+        updateCharCounters();
     } catch (error) {
-        showTerminalMessage('ENCRYPTION ERROR', 'error');
-        logActivity(`ENCRYPTION ERROR: ${error.message}`);
+        logActivity(`Encryption error: ${error.message}`);
     }
 }
 
 function copyToBody() {
-    const cipherText = document.getElementById('cipher-text').value;
+    const cipherText = document.getElementById('ciphertext').value;
     document.getElementById('body').value = cipherText;
 }
 
-function copyToClipboard() {
-    const cipherText = document.getElementById('cipher-text').value;
+function copyResult() {
+    const cipherText = document.getElementById('ciphertext').value;
     navigator.clipboard.writeText(cipherText).then(() => {
-        // Optional: give user feedback
-        // alert('Copied to clipboard');
+        logActivity('Copied to clipboard');
     }, (err) => {
         console.error('Could not copy text: ', err);
+        logActivity('Copy failed');
     });
 }
 
 function decryptText() {
-    const cipherText = document.getElementById('cipher-text').value;
-    const key = document.getElementById('cipher-key').value;
+    const cipherText = document.getElementById('ciphertext').value;
+    const key = document.getElementById('key').value;
     
     if (!key) {
-        showTerminalMessage('ERROR: CIPHER KEY REQUIRED', 'error');
-        logActivity('DECRYPTION FAILED: No cipher key provided');
+        logActivity('Decryption failed: No cipher key provided');
         return;
     }
     
     if (!cipherText.trim()) {
-        showTerminalMessage('ERROR: NO CIPHERTEXT TO DECRYPT', 'error');
-        logActivity('DECRYPTION FAILED: No ciphertext provided');
+        logActivity('Decryption failed: No ciphertext provided');
         return;
     }
     
@@ -670,8 +743,7 @@ function decryptText() {
         // Convert from char codes back to string
         const charCodes = cipherText.split(' ').filter(c => c.trim());
         if (charCodes.length === 0) {
-            showTerminalMessage('ERROR: INVALID CIPHERTEXT FORMAT', 'error');
-            logActivity('DECRYPTION FAILED: Invalid ciphertext format');
+            logActivity('Decryption failed: Invalid ciphertext format');
             return;
         }
         
@@ -684,11 +756,374 @@ function decryptText() {
         }).join('');
         
         const decrypted = xorCipher(encrypted, key);
-        document.getElementById('plain-text').value = decrypted;
+        document.getElementById('plaintext').value = decrypted;
         
-        logActivity(`DECRYPTED ${charCodes.length} CHARACTERS WITH ${key.length}-CHAR KEY`);
+        logActivity(`Decrypted ${charCodes.length} characters with ${key.length}-character key`);
+        updateCharCounters();
     } catch (error) {
-        showTerminalMessage('DECRYPTION ERROR', 'error');
-        logActivity(`DECRYPTION ERROR: ${error.message}`);
+        logActivity(`Decryption error: ${error.message}`);
     }
+}
+
+// Generate a random encryption key
+function generateRandomKey() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+    let key = '';
+    for (let i = 0; i < 16; i++) {
+        key += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    document.getElementById('key').value = key;
+    updateKeyStrength(key);
+    logActivity('Random encryption key generated');
+}
+
+// Clear all text fields
+function clearAll() {
+    document.getElementById('plaintext').value = '';
+    document.getElementById('ciphertext').value = '';
+    document.getElementById('key').value = '';
+    updateCharCounters();
+    updateKeyStrength('');
+    logActivity('All fields cleared');
+}
+
+// Swap plaintext and ciphertext
+function swapTexts() {
+    const plaintext = document.getElementById('plaintext');
+    const ciphertext = document.getElementById('ciphertext');
+    const temp = plaintext.value;
+    plaintext.value = ciphertext.value;
+    ciphertext.value = temp;
+    updateCharCounters();
+    logActivity('Text fields swapped');
+}
+
+// Update character counters
+function updateCharCounters() {
+    const plainCounter = document.getElementById('plain-counter');
+    const cipherCounter = document.getElementById('cipher-counter');
+    const plaintext = document.getElementById('plaintext');
+    const ciphertext = document.getElementById('ciphertext');
+    
+    if (plainCounter && plaintext) {
+        plainCounter.textContent = `${plaintext.value.length} chars`;
+    }
+    if (cipherCounter && ciphertext) {
+        cipherCounter.textContent = `${ciphertext.value.length} chars`;
+    }
+}
+
+// Clear activity log
+function clearLog() {
+    const logOutput = document.getElementById('log-output');
+    const activityLog = document.getElementById('activity-log');
+    
+    if (logOutput) {
+        logOutput.innerHTML = 'Encryption tool ready';
+    }
+    if (activityLog) {
+        activityLog.innerHTML = 'Tone generator ready';
+    }
+    
+    logActivity('Activity log cleared');
+}
+
+// Manual tone generation functions
+function playTone(frequency) {
+    if (!audioContext) {
+        logActivity('Audio context not initialized');
+        return;
+    }
+    
+    const volumeSlider = document.getElementById('volume-slider');
+    const durationSlider = document.getElementById('duration-slider');
+    const volume = volumeSlider ? parseFloat(volumeSlider.value) / 100 : 0.5;
+    const duration = durationSlider ? parseInt(durationSlider.value) : 200;
+    
+    try {
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+        oscillator.type = 'sine';
+        
+        gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+        gainNode.gain.linearRampToValueAtTime(volume, audioContext.currentTime + 0.01);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration / 1000);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + duration / 1000);
+        
+        logActivity(`Generated ${frequency}Hz tone for ${duration}ms at ${Math.round(volume * 100)}% volume`);
+    } catch (error) {
+        logActivity(`Tone generation error: ${error.message}`);
+    }
+}
+
+// Numeric keypad functions
+function playDigit0() { playTone(941); }
+function playDigit1() { playTone(697); }
+function playDigit2() { playTone(770); }
+function playDigit3() { playTone(852); }
+function playDigit4() { playTone(697); }
+function playDigit5() { playTone(770); }
+function playDigit6() { playTone(852); }
+function playDigit7() { playTone(697); }
+function playDigit8() { playTone(770); }
+function playDigit9() { playTone(852); }
+
+// Special signal functions
+function playAchtung() {
+    playSound('achtung');
+}
+
+function playTrennung() {
+    playSound('trennung');
+}
+
+function playEnde() {
+    playSound('ende');
+}
+
+function playCustomTone() {
+    const frequency = prompt('Enter frequency (Hz):', '440');
+    if (frequency && !isNaN(frequency)) {
+        playTone(parseFloat(frequency));
+    }
+}
+
+// Transmitter audio generation functions
+let currentAudioBuffer = null;
+let currentAudioSource = null;
+
+function generateAudio() {
+    const callSign = document.getElementById('call').value;
+    const message = document.getElementById('body').value;
+    const mode = document.querySelector('input[name="mode"]:checked').value;
+    
+    if (!callSign.trim() && !message.trim()) {
+        logActivity('Generation failed: No call sign or message provided');
+        return;
+    }
+    
+    if (mode === 'voice') {
+        generateVoiceAudio(callSign, message);
+    } else if (mode === 'morse') {
+        generateMorseAudioTransmitter(callSign, message);
+    }
+}
+
+function generateVoiceAudio(callSign, message) {
+    if (!audioContext) {
+        logActivity('Audio context not initialized');
+        return;
+    }
+    
+    try {
+        const callsignReps = parseInt(document.getElementById('callsign-reps').value) || 2;
+        const achtungSignal = document.getElementById('achtung-signal').checked;
+        const autoPause = document.getElementById('auto-pause').checked;
+        const pauseDuration = parseInt(document.getElementById('auto-pause-duration').value) || 100;
+        
+        let audioSequence = [];
+        
+        // Add achtung signal if enabled
+        if (achtungSignal) {
+            audioSequence.push('achtung');
+        }
+        
+        // Add call sign repetitions
+        for (let i = 0; i < callsignReps; i++) {
+            if (callSign.trim()) {
+                audioSequence.push(callSign.trim());
+            }
+        }
+        
+        // Add message content
+        if (message.trim()) {
+            const messageGroups = message.trim().split(/\s+/);
+            audioSequence = audioSequence.concat(messageGroups);
+        }
+        
+        // Generate audio for sequence
+        playAudioSequence(audioSequence, autoPause ? pauseDuration : 0);
+        
+        logActivity(`Generated voice audio: ${audioSequence.length} elements`);
+        
+        // Enable play button
+        document.getElementById('play-btn').disabled = false;
+        document.getElementById('download-btn').disabled = false;
+        
+    } catch (error) {
+        logActivity(`Voice generation error: ${error.message}`);
+    }
+}
+
+function generateMorseAudioTransmitter(callSign, message) {
+    if (!audioContext) {
+        logActivity('Audio context not initialized');
+        return;
+    }
+    
+    try {
+        const wpm = parseInt(document.getElementById('morse-wpm').value) || 20;
+        const frequency = parseInt(document.getElementById('morse-frequency').value) || 800;
+        
+        const fullText = (callSign + ' ' + message).trim();
+        if (!fullText) {
+            logActivity('Morse generation failed: No text provided');
+            return;
+        }
+        
+        generateMorseAudio(fullText, wpm, frequency);
+        logActivity(`Generated Morse code: ${fullText.length} characters at ${wpm} WPM`);
+        
+        // Enable play button
+        document.getElementById('play-btn').disabled = false;
+        document.getElementById('download-btn').disabled = false;
+        
+    } catch (error) {
+        logActivity(`Morse generation error: ${error.message}`);
+    }
+}
+
+function playAudioSequence(sequence, pauseDuration) {
+    let currentTime = audioContext.currentTime;
+    
+    sequence.forEach((item, index) => {
+        if (item === 'achtung' || item === 'trennung' || item === 'ende') {
+            // Play special sounds
+            playSound(item, currentTime);
+            currentTime += 2; // Approximate duration
+        } else {
+            // Play individual digits/characters
+            for (let char of item) {
+                if (/\d/.test(char)) {
+                    playDigitAtTime(char, currentTime);
+                    currentTime += 0.8; // Duration per digit
+                }
+            }
+        }
+        
+        if (pauseDuration > 0 && index < sequence.length - 1) {
+            currentTime += pauseDuration / 1000;
+        }
+    });
+}
+
+function playDigitAtTime(digit, startTime) {
+    const frequencies = {
+        '0': 941, '1': 697, '2': 770, '3': 852, '4': 697,
+        '5': 770, '6': 852, '7': 697, '8': 770, '9': 852
+    };
+    
+    const frequency = frequencies[digit] || 440;
+    
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.frequency.setValueAtTime(frequency, startTime);
+    oscillator.type = 'sine';
+    
+    gainNode.gain.setValueAtTime(0, startTime);
+    gainNode.gain.linearRampToValueAtTime(0.3, startTime + 0.01);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + 0.7);
+    
+    oscillator.start(startTime);
+    oscillator.stop(startTime + 0.8);
+}
+
+function playAudio() {
+    if (currentAudioBuffer && audioContext) {
+        stopAudio();
+        
+        currentAudioSource = audioContext.createBufferSource();
+        currentAudioSource.buffer = currentAudioBuffer;
+        currentAudioSource.connect(audioContext.destination);
+        currentAudioSource.start();
+        
+        document.getElementById('play-btn').disabled = true;
+        document.getElementById('stop-btn').disabled = false;
+        
+        currentAudioSource.onended = function() {
+            document.getElementById('play-btn').disabled = false;
+            document.getElementById('stop-btn').disabled = true;
+        };
+        
+        logActivity('Audio playback started');
+    }
+}
+
+function stopAudio() {
+    if (currentAudioSource) {
+        currentAudioSource.stop();
+        currentAudioSource = null;
+        
+        document.getElementById('play-btn').disabled = false;
+        document.getElementById('stop-btn').disabled = true;
+        
+        logActivity('Audio playback stopped');
+    }
+}
+
+function downloadAudio() {
+    if (currentAudioBuffer) {
+        // Create a simple WAV file download
+        const audioData = currentAudioBuffer.getChannelData(0);
+        const wavBuffer = createWAVFile(audioData, currentAudioBuffer.sampleRate);
+        
+        const blob = new Blob([wavBuffer], { type: 'audio/wav' });
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'transmission.wav';
+        a.click();
+        
+        URL.revokeObjectURL(url);
+        logActivity('Audio file downloaded');
+    }
+}
+
+function createWAVFile(audioData, sampleRate) {
+    const length = audioData.length;
+    const buffer = new ArrayBuffer(44 + length * 2);
+    const view = new DataView(buffer);
+    
+    // WAV header
+    const writeString = (offset, string) => {
+        for (let i = 0; i < string.length; i++) {
+            view.setUint8(offset + i, string.charCodeAt(i));
+        }
+    };
+    
+    writeString(0, 'RIFF');
+    view.setUint32(4, 36 + length * 2, true);
+    writeString(8, 'WAVE');
+    writeString(12, 'fmt ');
+    view.setUint32(16, 16, true);
+    view.setUint16(20, 1, true);
+    view.setUint16(22, 1, true);
+    view.setUint32(24, sampleRate, true);
+    view.setUint32(28, sampleRate * 2, true);
+    view.setUint16(32, 2, true);
+    view.setUint16(34, 16, true);
+    writeString(36, 'data');
+    view.setUint32(40, length * 2, true);
+    
+    // Convert audio data
+    let offset = 44;
+    for (let i = 0; i < length; i++) {
+        const sample = Math.max(-1, Math.min(1, audioData[i]));
+        view.setInt16(offset, sample * 0x7FFF, true);
+        offset += 2;
+    }
+    
+    return buffer;
 }

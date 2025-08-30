@@ -3,55 +3,48 @@ layout: default
 title: Home
 ---
 
-# STASI Speech Machine
+# Speech Synthesis System
 
-```
-STASI_SPEECH_MACHINE v2.0 - INITIALIZING...
-Loading encryption modules... [OK]
-Establishing secure connection... [OK]
-Audio synthesis engine ready... [OK]
-System operational. Welcome, Agent.
-```
+A comprehensive audio generation and encryption toolkit for educational and research purposes.
 
-## CLASSIFIED: NUMBER STATION SIMULATOR
+## Number Station Simulator
 
-**MISSION:** Deploy covert communication system for encrypted message transmission via synthesized audio broadcasts.
+This application provides tools for converting text and numerical sequences into synthesized audio broadcasts. The system includes encryption capabilities and various audio generation methods.
 
-**OBJECTIVE:** Convert numerical cipher sequences into spoken digit transmissions with downloadable audio output for field operations.
+This is a modern reconstruction of the original "Stasi Morse-Speech Generator" with updated functionality and improved user interface.
 
-**STATUS:** This system represents a complete reconstruction of the original "Stasi Morse-Speech Generator" with enhanced security protocols and modernized interface architecture.
+## Features
 
-## SYSTEM CAPABILITIES
-### 🎙️ AUDIO_SYNTHESIS
-**Function:** Generate WAV audio files from numerical call signs and message bodies  
-**Output:** High-quality spoken digit sequences for broadcast transmission  
-**Security:** No metadata retention, immediate playback capability
+### Audio Synthesis
+- Generate WAV audio files from text and numerical sequences
+- High-quality spoken digit sequences
+- Immediate playback and download capabilities
 
-### 🔐 CIPHER_ENGINE
-**Function:** XOR encryption/decryption with custom key support  
-**Integration:** Seamless workflow from plaintext to encrypted audio  
-**Protocol:** Character-code conversion for speakable cipher output
+### Encryption Tools
+- XOR encryption and decryption with custom key support
+- Character-code conversion for audio output
+- Integrated workflow from plaintext to encrypted audio
 
-### 📡 MANUAL_TRANSMISSION
-**Function:** Individual tone generation via keypad interface  
-**Sounds:** Digits 0-9, Achtung, Trennung, Ende signals  
-**Usage:** Real-time audio testing and manual broadcast control
+### Manual Tone Generation
+- Individual tone generation via keypad interface
+- Includes digits 0-9 and special signals (Achtung, Trennung, Ende)
+- Real-time audio testing capabilities
 
-### ⚡ MORSE_PROTOCOL
-**Function:** International Morse Code generation with customizable timing  
-**Parameters:** Adjustable WPM, frequency, and character spacing  
-**Export:** WAV file output for traditional radio transmission
+### Morse Code Generator
+- International Morse Code generation
+- Customizable timing parameters (WPM, frequency, character spacing)
+- WAV file export for radio transmission
 
-## OPERATIONAL SECURITY
+## Technical Information
 
-⚠️ **OPSEC WARNING:** All audio generation occurs client-side. No data transmitted to external servers.
+**Privacy:** All audio generation occurs client-side. No data is transmitted to external servers.
 
-ℹ️ **COMPATIBILITY:** Requires modern browser with Web Audio API support for full functionality.
+**Compatibility:** Requires a modern browser with Web Audio API support for full functionality.
 
-ℹ️ **WORKFLOW:** Encrypt → Generate → Download → Broadcast via secure channels
+**Workflow:** Encrypt → Generate → Download → Use as needed
 
-## DEVELOPMENT CREDITS
+## Credits
 
-**ORIGINAL_ARCHITECT:** `tom|hetmer|cz`  
-**SYSTEM_REBUILD:** `SamuelPalubaCZ`  
-**CLASSIFICATION:** `DECLASSIFIED_FOR_EDUCATIONAL_USE`
+**Original Developer:** tom|hetmer|cz  
+**System Rebuild:** SamuelPalubaCZ  
+**Purpose:** Educational and research use
