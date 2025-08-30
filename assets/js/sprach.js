@@ -140,21 +140,225 @@ async function generateMorseAudio(message, wpm, frequency) {
     return await offlineContext.startRendering();
 }
 
+// Hacker-themed UI enhancements
+function showTerminalMessage(message, type = 'info') {
+    const statusElements = document.querySelectorAll('.transmission-status, .crypto-status, .generator-status');
+    statusElements.forEach(element => {
+        if (element) {
+            element.textContent = message;
+            element.className = element.className.replace(/\b(info|success|error|warning)\b/g, '');
+            element.classList.add(type);
+            
+            // Add glitch effect for errors
+            if (type === 'error') {
+                element.style.animation = 'glitch 0.5s ease-in-out';
+                setTimeout(() => element.style.animation = '', 500);
+            }
+        }
+    });
+}
+
+function typewriterEffect(element, text, speed = 50) {
+    if (!element) return;
+    element.textContent = '';
+    let i = 0;
+    const timer = setInterval(() => {
+        if (i < text.length) {
+            element.textContent += text.charAt(i);
+            i++;
+        } else {
+            clearInterval(timer);
+        }
+    }, speed);
+}
+
+function addMatrixRain() {
+    const canvas = document.createElement('canvas');
+    canvas.id = 'matrix-bg';
+    canvas.style.position = 'fixed';
+    canvas.style.top = '0';
+    canvas.style.left = '0';
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    canvas.style.zIndex = '-1';
+    canvas.style.opacity = '0.1';
+    document.body.appendChild(canvas);
+    
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    
+    const matrix = '01';
+    const drops = [];
+    const fontSize = 14;
+    const columns = canvas.width / fontSize;
+    
+    for (let x = 0; x < columns; x++) {
+        drops[x] = 1;
+    }
+    
+    function draw() {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.04)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        ctx.fillStyle = '#00ff00';
+        ctx.font = fontSize + 'px monospace';
+        
+        for (let i = 0; i < drops.length; i++) {
+            const text = matrix[Math.floor(Math.random() * matrix.length)];
+            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+            
+            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                drops[i] = 0;
+            }
+            drops[i]++;
+        }
+    }
+    
+    setInterval(draw, 35);
+}
+
+function updateKeyStrength(key) {
+    const strengthElement = document.querySelector('.key-strength');
+    if (!strengthElement) return;
+    
+    let strength = 'WEAK';
+    let color = '#ff4444';
+    
+    if (key.length >= 8) {
+        strength = 'MODERATE';
+        color = '#ffa500';
+    }
+    if (key.length >= 12 && /[A-Z]/.test(key) && /[0-9]/.test(key)) {
+        strength = 'STRONG';
+        color = '#00ff00';
+    }
+    if (key.length >= 16 && /[A-Z]/.test(key) && /[0-9]/.test(key) && /[^A-Za-z0-9]/.test(key)) {
+        strength = 'MILITARY';
+        color = '#00ffff';
+    }
+    
+    strengthElement.textContent = `KEY STRENGTH: ${strength}`;
+    strengthElement.style.color = color;
+}
+
+function logActivity(message) {
+    const logContent = document.querySelector('.activity-content');
+    if (!logContent) return;
+    
+    const timestamp = new Date().toLocaleTimeString('en-US', { hour12: false });
+    const logEntry = document.createElement('div');
+    logEntry.className = 'log-entry';
+    logEntry.innerHTML = `
+        <span class="log-time">${timestamp}</span>
+        <span class="log-message">${message}</span>
+    `;
+    
+    logContent.appendChild(logEntry);
+    logContent.scrollTop = logContent.scrollHeight;
+    
+    // Keep only last 50 entries
+    while (logContent.children.length > 50) {
+        logContent.removeChild(logContent.firstChild);
+    }
+}
+
 window.addEventListener('load', function () {
 	init();
-	document.getElementById('speech-form').onsubmit = function (e) {
-		e.preventDefault();
-		generateAudio();
-	};
+	addMatrixRain();
+	
+	// Enhanced form submission with terminal feedback
+	const speechForm = document.getElementById('speech-form');
+	if (speechForm) {
+		speechForm.onsubmit = function (e) {
+			e.preventDefault();
+			showTerminalMessage('INITIALIZING AUDIO SYNTHESIS...', 'info');
+			generateAudio();
+		};
+	}
+	
+	// Enhanced keypress with visual feedback
 	document.body.onkeypress = function (e) {
 		e = e || event;
 		key = String.fromCharCode(e.keyCode);
 		playSound(key, 0);
+		logActivity(`TONE GENERATED: ${key}`);
 	}
-	document.getElementById('encrypt-button').addEventListener('click', encryptText);
-    document.getElementById('decrypt-button').addEventListener('click', decryptText);
-	document.getElementById('copy-to-body-button').addEventListener('click', copyToBody);
-	document.getElementById('copy-to-clipboard-button').addEventListener('click', copyToClipboard);
+	
+	// Enhanced cipher controls
+	const encryptBtn = document.getElementById('encrypt-button');
+	if (encryptBtn) {
+		encryptBtn.addEventListener('click', function() {
+			showTerminalMessage('ENCRYPTING DATA...', 'info');
+			setTimeout(() => {
+				encryptText();
+				showTerminalMessage('ENCRYPTION COMPLETE', 'success');
+				logActivity('TEXT ENCRYPTED SUCCESSFULLY');
+			}, 500);
+		});
+	}
+	
+	const decryptBtn = document.getElementById('decrypt-button');
+	if (decryptBtn) {
+		decryptBtn.addEventListener('click', function() {
+			showTerminalMessage('DECRYPTING DATA...', 'info');
+			setTimeout(() => {
+				decryptText();
+				showTerminalMessage('DECRYPTION COMPLETE', 'success');
+				logActivity('TEXT DECRYPTED SUCCESSFULLY');
+			}, 500);
+		});
+	}
+	
+	const copyBodyBtn = document.getElementById('copy-to-body-button');
+	if (copyBodyBtn) {
+		copyBodyBtn.addEventListener('click', function() {
+			copyToBody();
+			showTerminalMessage('DATA TRANSFERRED', 'success');
+			logActivity('CIPHER TEXT COPIED TO TRANSMISSION BODY');
+		});
+	}
+	
+	const copyClipBtn = document.getElementById('copy-to-clipboard-button');
+	if (copyClipBtn) {
+		copyClipBtn.addEventListener('click', function() {
+			copyToClipboard();
+			showTerminalMessage('COPIED TO SYSTEM BUFFER', 'success');
+			logActivity('CIPHER TEXT COPIED TO CLIPBOARD');
+		});
+	}
+	
+	// Key strength monitoring
+	const cipherKey = document.getElementById('cipher-key');
+	if (cipherKey) {
+		cipherKey.addEventListener('input', function() {
+			updateKeyStrength(this.value);
+		});
+	}
+	
+	// Clear activity log
+	const clearBtn = document.querySelector('.clear-btn');
+	if (clearBtn) {
+		clearBtn.addEventListener('click', function() {
+			const logContent = document.querySelector('.activity-content');
+			if (logContent) {
+				logContent.innerHTML = '';
+				showTerminalMessage('ACTIVITY LOG CLEARED', 'info');
+			}
+		});
+	}
+	
+	// Enhanced slider interactions
+	const sliders = document.querySelectorAll('.control-slider');
+	sliders.forEach(slider => {
+		const valueDisplay = slider.parentElement.querySelector('.slider-value');
+		if (valueDisplay) {
+			slider.addEventListener('input', function() {
+				valueDisplay.textContent = this.value;
+				logActivity(`PARAMETER ADJUSTED: ${this.id} = ${this.value}`);
+			});
+		}
+	});
 
     // --- UI Mode Toggling ---
     const modeVoice = document.getElementById('mode-voice');
@@ -183,19 +387,26 @@ async function generateAudio() {
     let renderedBuffer = null;
 
     const generateButton = document.getElementById('generate-button');
-    generateButton.textContent = 'Generating...';
+    const originalText = generateButton.textContent;
+    generateButton.textContent = 'PROCESSING...';
     generateButton.disabled = true;
+    
+    showTerminalMessage(`GENERATING ${mode.toUpperCase()} AUDIO...`, 'info');
+    logActivity(`AUDIO GENERATION STARTED: ${mode.toUpperCase()} MODE`);
 
     try {
         if (mode === 'voice') {
+            showTerminalMessage('SYNTHESIZING VOICE TRANSMISSION...', 'info');
             renderedBuffer = await generateVoiceAudio();
         } else {
             const wpm = parseInt(document.getElementById('morse-wpm').value, 10);
             const frequency = parseInt(document.getElementById('morse-frequency').value, 10);
+            showTerminalMessage(`ENCODING MORSE: ${wpm}WPM @ ${frequency}Hz`, 'info');
             renderedBuffer = await generateMorseAudio(body, wpm, frequency);
         }
 
         if (renderedBuffer) {
+            showTerminalMessage('CONVERTING TO WAV FORMAT...', 'info');
             const wavBlob = audioBufferToWav(renderedBuffer);
             const audioUrl = URL.createObjectURL(wavBlob);
 
@@ -206,15 +417,28 @@ async function generateAudio() {
             audioPlayback.src = audioUrl;
             downloadLink.href = audioUrl;
             audioOutput.style.display = 'block';
+            
+            showTerminalMessage('AUDIO SYNTHESIS COMPLETE', 'success');
+            logActivity(`AUDIO FILE GENERATED: ${Math.round(renderedBuffer.duration * 1000)}ms duration`);
+            
+            // Add glowing effect to download section
+            if (audioOutput) {
+                audioOutput.style.boxShadow = '0 0 20px rgba(0, 255, 0, 0.5)';
+                setTimeout(() => {
+                    audioOutput.style.boxShadow = '';
+                }, 2000);
+            }
         } else {
-             alert('Audio generation failed. The message may contain no valid characters.');
+            showTerminalMessage('SYNTHESIS FAILED: INVALID INPUT', 'error');
+            logActivity('ERROR: Audio generation failed - no valid characters');
         }
 
     } catch (error) {
         console.error('Error rendering audio:', error);
-        alert('An error occurred while generating the audio.');
+        showTerminalMessage('CRITICAL ERROR: SYNTHESIS FAILURE', 'error');
+        logActivity(`ERROR: ${error.message}`);
     } finally {
-        generateButton.textContent = 'Generate Audio File';
+        generateButton.textContent = originalText;
         generateButton.disabled = false;
     }
 }
@@ -385,14 +609,30 @@ function xorCipher(text, key) {
 function encryptText() {
     const plainText = document.getElementById('plain-text').value;
     const key = document.getElementById('cipher-key').value;
+    
     if (!key) {
-        alert('Please enter a cipher key.');
+        showTerminalMessage('ERROR: CIPHER KEY REQUIRED', 'error');
+        logActivity('ENCRYPTION FAILED: No cipher key provided');
         return;
     }
-    const encrypted = xorCipher(plainText, key);
-    // To make it "speakable", we convert to char codes
-    const speakableEncrypted = encrypted.split('').map(c => c.charCodeAt(0)).join(' ');
-    document.getElementById('cipher-text').value = speakableEncrypted;
+    
+    if (!plainText.trim()) {
+        showTerminalMessage('ERROR: NO PLAINTEXT TO ENCRYPT', 'error');
+        logActivity('ENCRYPTION FAILED: No plaintext provided');
+        return;
+    }
+    
+    try {
+        const encrypted = xorCipher(plainText, key);
+        // To make it "speakable", we convert to char codes
+        const speakableEncrypted = encrypted.split('').map(c => c.charCodeAt(0)).join(' ');
+        document.getElementById('cipher-text').value = speakableEncrypted;
+        
+        logActivity(`ENCRYPTED ${plainText.length} CHARACTERS WITH ${key.length}-CHAR KEY`);
+    } catch (error) {
+        showTerminalMessage('ENCRYPTION ERROR', 'error');
+        logActivity(`ENCRYPTION ERROR: ${error.message}`);
+    }
 }
 
 function copyToBody() {
@@ -413,12 +653,42 @@ function copyToClipboard() {
 function decryptText() {
     const cipherText = document.getElementById('cipher-text').value;
     const key = document.getElementById('cipher-key').value;
+    
     if (!key) {
-        alert('Please enter a cipher key.');
+        showTerminalMessage('ERROR: CIPHER KEY REQUIRED', 'error');
+        logActivity('DECRYPTION FAILED: No cipher key provided');
         return;
     }
-    // Convert from char codes back to string
-    const encrypted = cipherText.split(' ').filter(c => c).map(c => String.fromCharCode(parseInt(c, 10))).join('');
-    const decrypted = xorCipher(encrypted, key);
-    document.getElementById('plain-text').value = decrypted;
+    
+    if (!cipherText.trim()) {
+        showTerminalMessage('ERROR: NO CIPHERTEXT TO DECRYPT', 'error');
+        logActivity('DECRYPTION FAILED: No ciphertext provided');
+        return;
+    }
+    
+    try {
+        // Convert from char codes back to string
+        const charCodes = cipherText.split(' ').filter(c => c.trim());
+        if (charCodes.length === 0) {
+            showTerminalMessage('ERROR: INVALID CIPHERTEXT FORMAT', 'error');
+            logActivity('DECRYPTION FAILED: Invalid ciphertext format');
+            return;
+        }
+        
+        const encrypted = charCodes.map(c => {
+            const code = parseInt(c, 10);
+            if (isNaN(code) || code < 0 || code > 65535) {
+                throw new Error(`Invalid character code: ${c}`);
+            }
+            return String.fromCharCode(code);
+        }).join('');
+        
+        const decrypted = xorCipher(encrypted, key);
+        document.getElementById('plain-text').value = decrypted;
+        
+        logActivity(`DECRYPTED ${charCodes.length} CHARACTERS WITH ${key.length}-CHAR KEY`);
+    } catch (error) {
+        showTerminalMessage('DECRYPTION ERROR', 'error');
+        logActivity(`DECRYPTION ERROR: ${error.message}`);
+    }
 }

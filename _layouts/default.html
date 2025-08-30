@@ -4,42 +4,101 @@
     <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="{{ '/assets/css/style.css?v=' | append: site.github.build_revision | relative_url }}">
+    <link rel="stylesheet" href="{{ '/assets/css/hacker-theme.css' | relative_url }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     {% include head-custom.html %}
-
-{% seo %}
+    {% seo %}
   </head>
 
   <body>
-
-    <header>
-      <div class="container">
-        <a id="a-title" href="{{ '/' | relative_url }}">
-          <h1>{{ site.title | default: site.github.repository_name }}</h1>
-        </a>
-        <h2>{{ site.description | default: site.github.project_tagline }}</h2>
-
-        <nav>
-          <a href="{{ '/' | relative_url }}">Home</a>
-          <a href="{{ '/transmitter.html' | relative_url }}">Transmitter</a>
-          <a href="{{ '/cipher.html' | relative_url }}">Cipher</a>
-          <a href="{{ '/manual_tones.html' | relative_url }}">Manual Tones</a>
+    <div class="matrix-bg"></div>
+    <div class="terminal-container">
+      <header class="terminal-header">
+        <div class="terminal-title-bar">
+          <div class="terminal-buttons">
+            <span class="terminal-button close"></span>
+            <span class="terminal-button minimize"></span>
+            <span class="terminal-button maximize"></span>
+          </div>
+          <div class="terminal-title">STASI_SPEECH_MACHINE.exe</div>
+        </div>
+        
+        <div class="ascii-logo">
+          <pre class="ascii-art">
+ ███████╗████████╗ █████╗ ███████╗██╗    ███████╗██████╗ ███████╗███████╗ ██████╗██╗  ██╗
+ ██╔════╝╚══██╔══╝██╔══██╗██╔════╝██║    ██╔════╝██╔══██╗██╔════╝██╔════╝██╔════╝██║  ██║
+ ███████╗   ██║   ███████║███████╗██║    ███████╗██████╔╝█████╗  █████╗  ██║     ███████║
+ ╚════██║   ██║   ██╔══██║╚════██║██║    ╚════██║██╔═══╝ ██╔══╝  ██╔══╝  ██║     ██╔══██║
+ ███████║   ██║   ██║  ██║███████║██║    ███████║██║     ███████╗███████╗╚██████╗██║  ██║
+ ╚══════╝   ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝    ╚══════╝╚═╝     ╚══════╝╚══════╝ ╚═════╝╚═╝  ╚═╝
+          </pre>
+        </div>
+        
+        <div class="system-info">
+          <span class="prompt">root@stasi-machine:~#</span>
+          <span class="description">{{ site.description | default: "A number station simulator and cipher tool" }}</span>
+        </div>
+        
+        <nav class="terminal-nav">
+          <div class="nav-prompt">Available commands:</div>
+          <div class="nav-commands">
+            <a href="{{ '/' | relative_url }}" class="nav-cmd" data-cmd="./home">HOME</a>
+            <a href="{{ '/transmitter.html' | relative_url }}" class="nav-cmd" data-cmd="./transmitter">TRANSMITTER</a>
+            <a href="{{ '/cipher.html' | relative_url }}" class="nav-cmd" data-cmd="./cipher">CIPHER</a>
+            <a href="{{ '/manual_tones.html' | relative_url }}" class="nav-cmd" data-cmd="./manual_tones">MANUAL_TONES</a>
+          </div>
         </nav>
-
-        <section id="downloads">
+        
+        {% if site.show_downloads or site.github.repository_url %}
+        <div class="system-downloads">
+          <div class="download-prompt">System files:</div>
           {% if site.show_downloads %}
-            <a href="{{ site.github.zip_url }}" class="btn">Download as .zip</a>
-            <a href="{{ site.github.tar_url }}" class="btn">Download as .tar.gz</a>
+            <a href="{{ site.github.zip_url }}" class="download-link">[DOWNLOAD.ZIP]</a>
+            <a href="{{ site.github.tar_url }}" class="download-link">[DOWNLOAD.TAR.GZ]</a>
           {% endif %}
-          <a href="{{ site.github.repository_url }}" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
-        </section>
-      </div>
-    </header>
+          <a href="{{ site.github.repository_url }}" class="download-link">[VIEW_SOURCE]</a>
+        </div>
+        {% endif %}
+      </header>
 
-    <div class="container">
-      <section id="main_content">
-        {{ content }}
-      </section>
+      <main class="terminal-content">
+        <div class="content-wrapper">
+          {{ content }}
+        </div>
+      </main>
+      
+      <footer class="terminal-footer">
+        <div class="status-bar">
+          <span class="status-item">STATUS: ONLINE</span>
+          <span class="status-item">ENCRYPTION: ACTIVE</span>
+          <span class="status-item">SIGNAL: STRONG</span>
+          <span class="status-item" id="current-time"></span>
+        </div>
+      </footer>
     </div>
+    
+    <script>
+      // Update time in footer
+      function updateTime() {
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('en-US', { hour12: false });
+        const dateStr = now.toLocaleDateString('en-US');
+        document.getElementById('current-time').textContent = `${dateStr} ${timeStr}`;
+      }
+      setInterval(updateTime, 1000);
+      updateTime();
+      
+      // Terminal typing effect for navigation
+      document.querySelectorAll('.nav-cmd').forEach(cmd => {
+        cmd.addEventListener('mouseenter', function() {
+          this.classList.add('typing');
+        });
+        cmd.addEventListener('mouseleave', function() {
+          this.classList.remove('typing');
+        });
+      });
+    </script>
   </body>
 </html>
