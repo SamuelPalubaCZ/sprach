@@ -53,6 +53,7 @@ function playSound(key, time) {
 function finishedLoading(returnedBuffer) {
 	window.sounds = returnedBuffer;
 }
+
 window.onload = function () {
 	init();
 	
@@ -194,7 +195,7 @@ async function generateAudio() {
 
     // Validace vstupu
     if (!call || !body) {
-        showNotification('Prosím vyplňte volací znak a zprávu.', 'error');
+        showNotification('Please fill in call sign and message.', 'error');
         return;
     }
 
@@ -262,7 +263,7 @@ async function generateAudio() {
 
     const validClips = soundClips.filter(c => c !== null);
     if (validClips.length === 0) {
-        showNotification("Žádné platné znaky k generování audio.", 'error');
+        showNotification("No valid characters to generate audio.", 'error');
         return;
     }
 
@@ -284,12 +285,12 @@ async function generateAudio() {
     }
 
     const generateButton = document.getElementById('generate-button');
-    generateButton.textContent = 'Generování...';
+    generateButton.textContent = 'Generating...';
     generateButton.disabled = true;
     generateButton.classList.add('loading');
 
     try {
-        showNotification('Generuji audio soubor...', 'info');
+        showNotification('Generating audio file...', 'info');
         
         const renderedBuffer = await offlineContext.startRendering();
         const wavBlob = audioBufferToWav(renderedBuffer);
@@ -303,14 +304,14 @@ async function generateAudio() {
         downloadLink.href = audioUrl;
         audioOutput.style.display = 'block';
         
-        showNotification('Audio soubor byl úspěšně vygenerován!', 'success');
+        showNotification('Audio file generated successfully!', 'success');
         
         // Scroll na audio output
         audioOutput.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         
     } catch (error) {
         console.error('Error rendering audio:', error);
-        showNotification('Chyba při generování audio souboru.', 'error');
+        showNotification('Error generating audio file.', 'error');
     } finally {
         generateButton.textContent = 'Generate Audio File';
         generateButton.disabled = false;
@@ -377,15 +378,15 @@ function audioBufferToWav(buffer) {
 
 function xorCipher(text, key) {
     if (!text || !key) {
-        throw new Error('Text a klíč jsou povinné parametry');
+        throw new Error('Text and key are required parameters');
     }
     
     if (typeof text !== 'string' || typeof key !== 'string') {
-        throw new Error('Text a klíč musí být řetězce');
+        throw new Error('Text and key must be strings');
     }
     
     if (key.length === 0) {
-        throw new Error('Klíč nemůže být prázdný');
+        throw new Error('Key cannot be empty');
     }
     
     let result = '';
@@ -411,12 +412,12 @@ function encryptText() {
     const key = keyElement.value;
     
     if (!key) {
-        alert('Prosím zadejte šifrovací klíč.');
+        alert('Please enter an encryption key.');
         return;
     }
     
     if (!plainText) {
-        alert('Prosím zadejte text k zašifrování.');
+        alert('Please enter text to encrypt.');
         return;
     }
     
@@ -427,8 +428,8 @@ function encryptText() {
         cipherTextElement.value = speakableEncrypted;
         console.log('Text successfully encrypted');
     } catch (error) {
-        console.error('Chyba při šifrování:', error);
-        alert('Chyba při šifrování: ' + error.message);
+        console.error('Error during encryption:', error);
+        alert('Error during encryption: ' + error.message);
     }
 }
 
@@ -443,7 +444,7 @@ function copyToBody() {
     
     const cipherText = cipherTextElement.value;
     if (!cipherText) {
-        alert('Prosím nejdříve zašifrujte nějaký text.');
+        alert('Please encrypt some text first.');
         return;
     }
     
@@ -460,17 +461,17 @@ function copyToClipboard() {
     
     const cipherText = cipherTextElement.value;
     if (!cipherText) {
-        alert('Prosím nejdříve zašifrujte nějaký text.');
+        alert('Please encrypt some text first.');
         return;
     }
     
     if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(cipherText).then(() => {
             // Optional: give user feedback
-            // alert('Zkopírováno do schránky');
+            // alert('Copied to clipboard');
         }, (err) => {
             console.error('Could not copy text: ', err);
-            alert('Nepodařilo se zkopírovat text do schránky.');
+            alert('Could not copy text to clipboard.');
         });
     } else {
         // Fallback pro starší prohlížeče
@@ -480,10 +481,10 @@ function copyToClipboard() {
         textArea.select();
         try {
             document.execCommand('copy');
-            // alert('Zkopírováno do schránky');
+            // alert('Copied to clipboard');
         } catch (err) {
             console.error('Fallback copy failed: ', err);
-            alert('Nepodařilo se zkopírovat text do schránky.');
+            alert('Could not copy text to clipboard.');
         }
         document.body.removeChild(textArea);
     }
@@ -503,12 +504,12 @@ function decryptText() {
     const key = keyElement.value;
     
     if (!key) {
-        alert('Prosím zadejte šifrovací klíč.');
+        alert('Please enter an encryption key.');
         return;
     }
     
     if (!cipherText) {
-        alert('Prosím zadejte zašifrovaný text k dešifrování.');
+        alert('Please enter encrypted text to decrypt.');
         return;
     }
     
@@ -518,8 +519,8 @@ function decryptText() {
         const decrypted = xorCipher(encrypted, key);
         plainTextElement.value = decrypted;
     } catch (error) {
-        console.error('Chyba při dešifrování:', error);
-        alert('Chyba při dešifrování. Zkontrolujte formát zašifrovaného textu.');
+        console.error('Error during decryption:', error);
+        alert('Error during decryption. Please check the format of the encrypted text.');
     }
 }
 

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keypad Test - Sprach Machine</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .key {
+            padding: 20px;
+            font-size: 24px;
+            border: 2px solid #007bff;
+            border-radius: 8px;
+            background: #f8f9fa;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .key:hover {
+            background: #007bff;
+            color: white;
+        }
+        .special {
+            grid-column: span 2;
+            background: #ffc107;
+            border-color: #ffc107;
+        }
+        .special:hover {
+            background: #e0a800;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            background: #e9ecef;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔊 Keypad Test - Sprach Machine</h1>
+    <p>Test the functionality of the numeric keypad and audio playback.</p>
+    
+    <div class="status" id="status">Ready to test audio playback</div>
+    
+    <div class="keypad">
+        <button class="key" onclick="testSound(1)">1</button>
+        <button class="key" onclick="testSound(2)">2</button>
+        <button class="key" onclick="testSound(3)">3</button>
+        <button class="key" onclick="testSound(4)">4</button>
+        <button class="key" onclick="testSound(5)">5</button>
+        
+        <button class="key" onclick="testSound(6)">6</button>
+        <button class="key" onclick="testSound(7)">7</button>
+        <button class="key" onclick="testSound(8)">8</button>
+        <button class="key" onclick="testSound(9)">9</button>
+        <button class="key" onclick="testSound(0)">0</button>
+        
+        <button class="key special" onclick="testSound(10)">⚠️ Achtung</button>
+        <button class="key special" onclick="testSound(11)">⏸️ Trennung</button>
+        <button class="key special" onclick="testSound(12)">⏹️ Ende</button>
+    </div>
+    
+    <h3>Test Results:</h3>
+    <ul id="results"></ul>
+    
+    <script>
+        let context;
+        let sounds = {};
+        let testResults = [];
+        
+        // Initialize Web Audio API
+        function initAudio() {
+            try {
+                window.AudioContext = window.AudioContext || window.webkitAudioContext;
+                context = new AudioContext();
+                document.getElementById('status').textContent = 'Audio context initialized successfully';
+                return true;
+            } catch (e) {
+                document.getElementById('status').textContent = 'Error initializing audio: ' + e.message;
+                return false;
+            }
+        }
+        
+        // Load audio files
+        async function loadSounds() {
+            const soundFiles = [
+                './sounds/0.wav',
+                './sounds/1.wav',
+                './sounds/2.wav',
+                './sounds/3.wav',
+                './sounds/4.wav',
+                './sounds/5.wav',
+                './sounds/6.wav',
+                './sounds/7.wav',
+                './sounds/8.wav',
+                './sounds/9.wav',
+                './sounds/achtung.wav',
+                './sounds/trennung.wav',
+                './sounds/ende.wav'
+            ];
+            
+            document.getElementById('status').textContent = 'Loading audio files...';
+            
+            for (let i = 0; i < soundFiles.length; i++) {
+                try {
+                    const response = await fetch(soundFiles[i]);
+                    const arrayBuffer = await response.arrayBuffer();
+                    const audioBuffer = await context.decodeAudioData(arrayBuffer);
+                    sounds[i] = audioBuffer;
+                    addResult(`✅ Loaded: ${soundFiles[i]}`);
+                } catch (error) {
+                    addResult(`❌ Failed to load: ${soundFiles[i]} - ${error.message}`);
+                }
+            }
+            
+            document.getElementById('status').textContent = `Audio files loaded: ${Object.keys(sounds).length}/${soundFiles.length}`;
+        }
+        
+        // Test sound playback
+        function testSound(key) {
+            if (!context) {
+                addResult('❌ Audio context not initialized');
+                return;
+            }
+            
+            if (!sounds[key]) {
+                addResult(`❌ Sound ${key} not loaded`);
+                return;
+            }
+            
+            try {
+                const source = context.createBufferSource();
+                source.buffer = sounds[key];
+                source.connect(context.destination);
+                source.start(0);
+                
+                addResult(`✅ Played sound ${key} successfully`);
+                
+                // Resume audio context if suspended
+                if (context.state === 'suspended') {
+                    context.resume();
+                }
+            } catch (error) {
+                addResult(`❌ Error playing sound ${key}: ${error.message}`);
+            }
+        }
+        
+        // Add test result
+        function addResult(message) {
+            const results = document.getElementById('results');
+            const li = document.createElement('li');
+            li.textContent = message;
+            results.appendChild(li);
+            
+            // Keep only last 10 results
+            if (results.children.length > 10) {
+                results.removeChild(results.firstChild);
+            }
+        }
+        
+        // Initialize when page loads
+        window.addEventListener('load', async () => {
+            if (initAudio()) {
+                await loadSounds();
+            }
+        });
+        
+        // Handle user interaction to resume audio context
+        document.addEventListener('click', () => {
+            if (context && context.state === 'suspended') {
+                context.resume();
+            }
+        });
+    </script>
+</body>
+</html> 

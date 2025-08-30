@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="cs">
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Sprach Machine - Number Station Simulator s pokročilými funkcemi šifrování a generování audio zpráv. Ideální pro radio komunikaci a kryptografické experimenty.">
-    <meta name="keywords" content="number station, šifrování, audio generátor, radio komunikace, kryptografie, STASI, morse code">
+    <meta name="description" content="Sprach Machine - Number Station Simulator with advanced encryption features and audio message generation. Ideal for radio communication and cryptographic experiments.">
+    <meta name="keywords" content="number station, encryption, audio generator, radio communication, cryptography, STASI, morse code">
     <meta name="author" content="SamuelPalubaCZ">
     <meta name="robots" content="index, follow">
     
@@ -12,14 +12,14 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://github.com/SamuelPalubaCZ/sprach">
     <meta property="og:title" content="Sprach Machine - Number Station Simulator">
-    <meta property="og:description" content="Pokročilý simulátor number station s funkcemi šifrování a generování audio zpráv.">
+    <meta property="og:description" content="Advanced number station simulator with encryption features and audio message generation.">
     <meta property="og:image" content="https://github.com/SamuelPalubaCZ/sprach/raw/main/assets/preview.png">
     
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://github.com/SamuelPalubaCZ/sprach">
     <meta property="twitter:title" content="Sprach Machine - Number Station Simulator">
-    <meta property="twitter:description" content="Pokročilý simulátor number station s funkcemi šifrování a generování audio zpráv.">
+    <meta property="twitter:description" content="Advanced number station simulator with encryption features and audio message generation.">
     <meta property="twitter:image" content="https://github.com/SamuelPalubaCZ/sprach/raw/main/assets/preview.png">
     
     <!-- Favicon -->
@@ -37,7 +37,7 @@
         "@context": "https://schema.org",
         "@type": "SoftwareApplication",
         "name": "Sprach Machine",
-        "description": "Number Station Simulator s pokročilými funkcemi šifrování",
+        "description": "Number Station Simulator with advanced encryption features",
         "url": "https://github.com/SamuelPalubaCZ/sprach",
         "author": {
             "@type": "Person",
@@ -62,7 +62,7 @@
                     Sprach Machine
                 </h1>
                 <h2 class="brand-tagline">Number Station Simulator & Cipher Tool</h2>
-                <p class="brand-description">Pokročilý simulátor number station s funkcemi šifrování, generování audio zpráv a kryptografickými nástroji</p>
+                <p class="brand-description">Advanced number station simulator with encryption features, audio message generation, and cryptographic tools</p>
             </div>
         </header>
 
@@ -74,24 +74,24 @@
                         <span class="icon">📡</span>
                         Message Transmitter
                     </h2>
-                    <p class="section-description">Generujte audio zprávy s pokročilými možnostmi nastavení</p>
+                    <p class="section-description">Generate audio messages with advanced configuration options</p>
                 </div>
                 
                 <form id="speech-form" class="pure-form pure-form-stacked" onsubmit="return false;">
                     <fieldset>
-                        <legend>Základní nastavení</legend>
+                        <legend>Basic Settings</legend>
                         
                         <div class="form-group">
                             <label for="call">Call Sign</label>
-                            <input id="call" type="text" value="271" placeholder="Zadejte volací znak">
+                            <input id="call" type="text" value="271" placeholder="Enter call sign">
                         </div>
 
                         <div class="form-group">
                             <label for="body">Message Body (Numbers only)</label>
-                            <textarea rows="6" name="body" id="body" placeholder="Zadejte číselnou zprávu">846 846 20 20 83167 83167 14528 14528 30778 30778 13436 13436 50234 50234 67256 67256 15654 15654 27414 27414 15837 15837 75251 75251 51820 51820 37982 37982 64162 64162 18385 18385 90381 90381 77942 77942 12692 12692 22897 22897 69231 69231 14881 14881 846 846 20 20 00000</textarea>
+                            <textarea rows="6" name="body" id="body" placeholder="Enter numeric message">846 846 20 20 83167 83167 14528 14528 30778 30778 13436 13436 50234 50234 67256 67256 15654 15654 27414 27414 15837 15837 75251 75251 51820 51820 37982 37982 64162 64162 18385 18385 90381 90381 77942 77942 12692 12692 22897 22897 69231 69231 14881 14881 846 846 20 20 00000</textarea>
                             <p class="help-text">
                                 <span class="icon">💡</span>
-                                Použijte mezeru pro krátkou pauzu a `_` pro dlouhou pauzu. Speciální znaky: `* / + #`
+                                Use space for short pause and `_` for long pause. Special characters: `* / + #`
                             </p>
                         </div>
 
@@ -160,21 +160,21 @@
                         <span class="icon">🔐</span>
                         Cipher Tool
                     </h2>
-                    <p class="section-description">Pokročilé nástroje pro šifrování a dešifrování zpráv</p>
+                    <p class="section-description">Advanced tools for encrypting and decrypting messages</p>
                 </div>
                 
                 <form class="pure-form pure-form-stacked" onsubmit="return false;">
                     <fieldset>
-                        <legend>Šifrování & Dešifrování</legend>
+                        <legend>Encryption & Decryption</legend>
                         
                         <div class="form-group">
                             <label for="plain-text">Plaintext</label>
-                            <textarea id="plain-text" rows="4" placeholder="Zadejte text k zašifrování"></textarea>
+                            <textarea id="plain-text" rows="4" placeholder="Enter text to encrypt"></textarea>
                         </div>
 
                         <div class="form-group">
                             <label for="cipher-key">Cipher Key</label>
-                            <input type="text" id="cipher-key" value="STASI" placeholder="Zadejte šifrovací klíč">
+                            <input type="text" id="cipher-key" value="STASI" placeholder="Enter encryption key">
                         </div>
 
                         <div class="button-group">
@@ -190,7 +190,7 @@
 
                         <div class="form-group">
                             <label for="cipher-text">Ciphertext (for decryption)</label>
-                            <textarea id="cipher-text" rows="4" placeholder="Zašifrovaný text se zobrazí zde"></textarea>
+                            <textarea id="cipher-text" rows="4" placeholder="Encrypted text will appear here"></textarea>
                         </div>
                         
                         <div class="button-group">
@@ -214,7 +214,7 @@
                         <span class="icon">🎹</span>
                         Manual Tones
                     </h2>
-                    <p class="section-description">Ruční přehrávání zvukových tónů pro testování</p>
+                    <p class="section-description">Manual playback of audio tones for testing</p>
                 </div>
                 
                 <nav class="nav">
@@ -256,7 +256,7 @@
             <div class="footer-content">
                 <div class="footer-section">
                     <h3>Sprach Machine</h3>
-                    <p>Pokročilý simulátor number station s funkcemi šifrování a generování audio zpráv</p>
+                    <p>Advanced number station simulator with encryption features and audio message generation</p>
                 </div>
                 <div class="footer-section">
                     <h3>GitHub Repository</h3>
